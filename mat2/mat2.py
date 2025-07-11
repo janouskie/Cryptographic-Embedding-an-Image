@@ -81,7 +81,7 @@ def create_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def show_meta(filename: str, sandbox: bool):
+def show_meta(filename: str, sandbox: bool, userInput: int):
     if not __check_file(filename):
         return
 
@@ -90,10 +90,10 @@ def show_meta(filename: str, sandbox: bool):
         print("[-] %s's format (%s) is not supported" % (filename, mtype))
         return
     p.sandbox = sandbox
-    __print_meta(filename, p.get_meta())
+    __print_meta(filename, p.get_meta(), userInput)
 
 
-def __print_meta(filename: str, metadata: dict, depth: int = 1):
+def __print_meta(filename: str, metadata: dict, userInput: int, depth: int = 1):
     padding = " " * depth*2
     if not metadata:
         print(padding + "No metadata found in %s." % filename)
@@ -103,7 +103,7 @@ def __print_meta(filename: str, metadata: dict, depth: int = 1):
 
     for (k, v) in sorted(metadata.items()):
         if isinstance(v, dict):
-            __print_meta(k, v, depth+1)
+            __print_meta(k, v, depth+1, userInput)
             continue
 
         # Remove control characters
@@ -115,7 +115,15 @@ def __print_meta(filename: str, metadata: dict, depth: int = 1):
             pass  # for things that aren't iterable
 
         try:  # FIXME this is ugly.
-            print(padding + "  %s: %s" % (k, v))
+            # print(padding + "  %s: %s" % (k, v))
+            # print("",k, v)
+
+            # print(k)
+            if (userInput == 1 and k == "ProfileDateTime"):
+                print("Date and time: ",k,v) 
+            if (userInput == 2) :
+                print(" " ,k,v)
+            
         except UnicodeEncodeError:
             print(padding + "  %s: harmful content" % k)
 
