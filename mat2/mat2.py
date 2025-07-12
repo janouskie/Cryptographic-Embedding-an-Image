@@ -9,6 +9,7 @@ import argparse
 import logging
 import unicodedata
 import concurrent.futures
+from PIL.ExifTags import GPSTAGS, TAGS
 
 try:
     from libmat2 import parser_factory, UNSUPPORTED_EXTENSIONS
@@ -119,11 +120,11 @@ def __print_meta(filename: str, metadata: dict, userInput: int, depth: int = 1):
             # print("",k, v)
 
             # print(k)
-            if (userInput == 1 and k == "ProfileDateTime"):
-                print("Date and time: ",k,v) 
-            if (userInput == 2) :
+
+            if (userInput == 1 and k not in {"GPSPosition", "GPSAltitude", "GPSAltitudeRef", "GPSLatitude", "GPSLatitudeRef","GPSLongitude","GPSLongitudeRef"}):
                 print(" " ,k,v)
-            
+            if (userInput == 2 and k in {"GPSPosition", "GPSAltitude", "GPSAltitudeRef", "GPSLatitude", "GPSLatitudeRef","GPSLongitude","GPSLongitudeRef"}):
+                print("" , k,v)
         except UnicodeEncodeError:
             print(padding + "  %s: harmful content" % k)
 
