@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Title{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="btn-group"></div>
+    <h3>Strip your data here</h3>
+
+    <a> Upload file here </a>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file" class="form-control mb-3" required>
+        <button type="submit" class="btn btn-primary">Upload</button>
+
+        <br>
+          <label><input type="checkbox" name="remember"> Remove Location</label>
+           
+          <label><input type="checkbox" name="remember">Remove Time</label>
+                  <label><input type="checkbox" name="remember">Placeholder</label>
+         <label><input type="checkbox" name="remember">placeholder</label>
+
+          
+        </div>
+    </form>
+    </div>
+    
+</div>
+{% endblock %}

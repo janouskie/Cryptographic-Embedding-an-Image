@@ -1,6 +1,11 @@
 import setuptools
+import os
 
-with open("README.md", encoding='utf-8') as fh:
+# Get the absolute path of the current directory
+current_dir = os.path.abspath(os.path.dirname(__file__))
+
+# Open README.md using the absolute path
+with open(os.path.join(current_dir, "README.md"), encoding='utf-8') as fh:
     long_description = fh.read()
 
 setuptools.setup(
@@ -12,7 +17,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://0xacab.org/jvoisin/mat2",
-    python_requires = '>=3.5.0',
+    python_requires='>=3.5.0',
     scripts=['mat2'],
     install_requires=[
         'mutagen',
@@ -30,6 +35,6 @@ setuptools.setup(
         "Intended Audience :: End Users/Desktop",
     ],
     project_urls={
-        'bugtacker': 'https://0xacab.org/jvoisin/mat2/issues',
+        'bugtracker': 'https://0xacab.org/jvoisin/mat2/issues',
     },
 )
