@@ -11,7 +11,10 @@ def register():
         new_user = User(username=username, email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
-        return redirect(url_for('auth.login'))
+        session['user_id'] = new_user.id
+        session['user_role'] = new_user.role
+        session['username'] = new_user.username  # <-- Add this line
+        return redirect(url_for('home.home'))
     return render_template('register.html')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -23,6 +26,7 @@ def login():
         if user:
             session['user_id'] = user.id
             session['user_role'] = user.role
+            session['username'] = user.username  # <-- Add this line
             if user.role == 'Admin':
                 return redirect(url_for('admin.admin_page'))
             else:
@@ -40,4 +44,5 @@ def logout():
         user = User.query.get(session['user_id'])
         session.pop('user_id', None)
         session.pop('user_role', None)
+        session.pop('username', None)  # <-- Also clear username on logout
     return redirect(url_for('auth.login'))
