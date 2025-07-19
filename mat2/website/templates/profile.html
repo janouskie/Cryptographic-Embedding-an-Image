@@ -3,61 +3,25 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<div class="container_home">
+<div class="profile-card">
     <h1>User Profile</h1>
     <div class="profile-section">
         <h2>Your Information</h2>
-        <table>
-            <tr>
-                <th>Username:</th>
-                <td>{{ user.username }}</td>
-            </tr>
-            <tr>
-                <th>Email:</th>
-                <td>{{ user.email }}</td>
-            </tr>
-        </table>
-    </div>
-
-
-
-    <div class="profile-section">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
         <h2>Update Your Information</h2>
-        <table>
-            <tr>
-                <th>Change Username:</th>
-                <td>
-                    <form action="{{ url_for('profile.update_username') }}" method="post">
-                        <input type="text" id="username" name="username" placeholder="New Username" required>
-                        <th>
-                        <button type="submit" class="btn">Update</button>
-                    </th> 
-                    </form>
-                </td>
-            </tr>
-            <tr>
-                <th>Change Email:</th>
-                <td>
-                    <form action="{{ url_for('profile.update_email') }}" method="post">
-                        <input type="email" id="email" name="email" placeholder="New Email" required>
-                        <th>
-                        <button type="submit" class="btn">Update</button>
-                    </th> 
-                    </form>
-                </td>
-            </tr>
-            <tr>
-                <th>Reset Password:</th>
-                <td>
-                    <form action="{{ url_for('profile.reset_password') }}" method="post">
-                        <input type="password" id="password" name="password" placeholder="New Password" required></td>
-                        <th>
-                        <button type="submit" class="btn">Update</button>
-                        </th>   
-                    </form>
-                </td>
-            </tr>
-        </table>
+        <form class="profile-form" action="{{ url_for('profile.update_username') }}" method="post">
+            <label>Change Username: <input type="text" id="username" name="username" placeholder="New Username" required></label>
+            <button type="submit" class="btn">Update</button>
+        </form>
+        <form class="profile-form" action="{{ url_for('profile.update_email') }}" method="post">
+            <label>Change Email: <input type="email" id="email" name="email" placeholder="New Email" required></label>
+            <button type="submit" class="btn">Update</button>
+        </form>
+        <form class="profile-form" action="{{ url_for('profile.reset_password') }}" method="post">
+            <label>Reset Password: <input type="password" id="password" name="password" placeholder="New Password" required></label>
+            <button type="submit" class="btn">Update</button>
+        </form>
     </div>
 </div>
 {% endblock %}
