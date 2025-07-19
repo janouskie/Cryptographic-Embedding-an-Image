@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}Title{% endblock %}
+{% block title %}StegoSafe{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="btn-group"></div>
-    <h1>Welcome to XXXX</h1>
+    <h1>
+        {% if session.username %}
+            Welcome, {{ session.username }}!
+        {% else %}
+            Welcome to StegoSafe
+        {% endif %}
+    </h1>
     <p>PLACEHOLDER</p>
-    {% if 'user_id' not in session %}
-        <a href="{{ url_for('auth.register') }}" class="btn">Register</a>
-        <a href="{{ url_for('auth.login') }}" class="btn">Login</a>
-    {% endif %}
-    </div>
 </div>
 {% endblock %}
