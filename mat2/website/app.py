@@ -1,12 +1,13 @@
+import sys
 import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import sqlite3
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import requests
 from scapy.all import ARP, Ether, srp
-import pywifi
-from pywifi import const
 from models import init_db
 from routes.auth_routes import auth_bp
 #from routes.admin_routes import admin_bp
@@ -32,10 +33,11 @@ app.register_blueprint(home_bp)
 @app.context_processor
 def inject_user():
     from flask import session
-    return dict(session=session)
+    from datetime import datetime
+    return dict(session=session, current_year=datetime.now().year)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=80)
+    app.run(debug=True, port=8080)
 
 
 
