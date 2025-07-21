@@ -1,23 +1,48 @@
 {% extends "base.html" %}
 
-{% block title %}Title{% endblock %}
+{% block title %}Check Hash{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="btn-group"></div>
-    <h3>Check hash here</h3>
-
-    <a> Upload file one here </a>
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file" class="form-control mb-3" required>
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
-
-    <a> Upload file two here </a>
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file" class="form-control mb-3" required>
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
+<div class="centered-form">
+    <div class="form-card unique-meta-card">
+        <div class="meta-icon">&#128273;</div>
+        <h2 class="form-title gradient-text">Check Hash</h2>
+        <form method="post" enctype="multipart/form-data">
+            <label for="file1" class="meta-label">Upload file one here:</label>
+            <div class="custom-file-upload">
+                <input type="file" id="file1" name="file1" required>
+                <label for="file1" id="file1-label">
+                    <span id="file1-label-text">&#128206; Choose File</span>
+                </label>
+                <span id="file1-chosen"></span>
+            </div>
+            <label for="file2" class="meta-label">Upload file two here:</label>
+            <div class="custom-file-upload">
+                <input type="file" id="file2" name="file2" required>
+                <label for="file2" id="file2-label">
+                    <span id="file2-label-text">&#128206; Choose File</span>
+                </label>
+                <span id="file2-chosen"></span>
+            </div>
+            <div class="button-group">
+                <button class="btn meta-btn" name="action" value="check">&#128273; Check Hash</button>
+            </div>
+        </form>
+        {% if result %}
+            <div class="metadata-result unique-meta-result">
+                <pre>{{ result }}</pre>
+            </div>
+        {% endif %}
     </div>
 </div>
+<script>
+document.getElementById('file1').addEventListener('change', function(){
+    const fileName = this.files[0] ? this.files[0].name : '';
+    document.getElementById('file1-chosen').textContent = fileName;
+});
+document.getElementById('file2').addEventListener('change', function(){
+    const fileName = this.files[0] ? this.files[0].name : '';
+    document.getElementById('file2-chosen').textContent = fileName;
+});
+</script>
 {% endblock %}
