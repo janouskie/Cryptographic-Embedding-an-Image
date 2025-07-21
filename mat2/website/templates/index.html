@@ -3,15 +3,45 @@
 {% block title %}StegoSafe{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="btn-group"></div>
-    <h1>
-        {% if session.username %}
-            Welcome, {{ session.username }}!
-        {% else %}
-            Welcome to StegoSafe
-        {% endif %}
-    </h1>
-    <p>PLACEHOLDER</p>
+
+    <div class="modern-card-grid">
+        <!-- Card 1 -->
+        <div class="modern-card">
+            <span class="modern-badge">1</span>
+            <h2>Welcome</h2>
+            <p>
+                Welcome to StegoSafe, your trusted platform for secure and private image steganography. 
+                <br>
+                <br>
+                Explore our tools to protect your sensitive information with ease.
+            </p>
+          
+        </div>
+
+        <!-- Card 2 -->
+        <div class="modern-card">
+            <span class="modern-badge">2</span>
+            <h2>About</h2>
+            <p>
+                StegoSafe specializes in innovative cryptographic solutions for embedding data within images. 
+                <br>
+                <br>
+                Our mission is to make digital privacy accessible and effective for everyone.
+            </p>
+           
+        </div>
+        <!-- Card 3 -->
+        <div class="modern-card">
+            <span class="modern-badge">3</span>
+            <h2>Contact</h2>
+            <p>
+                Have questions or need support? Reach out to our team at <a href="mailto:info@yoursite.com">info@yoursite.com</a> 
+                <br>
+                <br>
+                or visit our contact page. We're here to help!
+            </p>
+           
+        </div>
+    </div>
 </div>
 {% endblock %}

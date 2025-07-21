@@ -91,3 +91,17 @@ button:hover {
     color: var(--secondary);
     text-decoration: underline;
 }
+
+.form-errors {
+    margin-bottom: 1rem;
+}
+.error-message {
+    background: #ffeaea;
+    color: #b30000;
+    border: 1px solid #ffb3b3;
+    border-radius: var(--radius);
+    padding: 0.7em 1em;
+    margin-bottom: 0.5em;
+    font-size: 1rem;
+    text-align: left;
+}

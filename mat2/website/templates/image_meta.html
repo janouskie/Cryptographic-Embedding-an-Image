@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Metadata Tool</title>
+</head>
+<body>
+    <h2>Image Metadata Tool</h2>
+    <form method="post" enctype="multipart/form-data">
+        <label>Select image:</label>
+        <input type="file" name="file" required><br><br>
+        <label>Choose action:</label>
+        <select name="action">
+            <option value="1">Display all metadata</option>
+            <option value="2">Display date/time metadata</option>
+            <option value="3">Remove metadata</option>
+        </select><br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <hr>
+    <div>{{ result|safe }}</div>
+</body>
+</html>
