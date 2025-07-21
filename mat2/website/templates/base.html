@@ -9,24 +9,33 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="nav-links">
+        <div class="nav-links nav-links-left">
+            <a href="{{ url_for('home.index') }}">Home</a>
             {% if 'user_id' in session %}
                 <a href="{{ url_for('profile.profile') }}">Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Logout</a>
+                <div class="dropdown">
+                    <button class="dropbtn">&#9776;</button>
+                    <div class="dropdown-content">
+                        <a href="{{ url_for('home.mdstrip') }}">MDs</a>
+                        <a href="{{ url_for('home.hash') }}">Hash</a>
+                        <a href="{{ url_for('home.metadata') }}">Image Metadata Actions</a>
+                        <a href="#">Placeholder</a>
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                          {% if messages %}
+                            {% for category, message in messages %}
+                              <div class="dropdown-alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                          {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
             {% else %}
                 <a href="{{ url_for('auth.login') }}">Login</a>
                 <a href="{{ url_for('auth.register') }}">Register</a>
             {% endif %}
-            <div class="dropdown">
-                <button class="dropbtn">&#9776;</button>
-                <div class="dropdown-content">
-                    <a href="{{ url_for('exif.mdstrip') }}">MDs</a>
-                    <a href="{{ url_for('home.hash') }}">Hash</a>
-                    <a href="#">Placeholder</a>
-                </div>
-            </div>
         </div>
-        <a href="{{ url_for('home.index') }}" class="navbar-title">StegoSafe</a>
+        <div class="nav-links nav-links-right"></div>
     </nav>
     <main class="main-content">
         {% block content %}{% endblock %}
@@ -55,7 +64,6 @@
         </div>
         <div class="footer-bottom">
             <span>&copy; {{ current_year }} YourSite. All rights reserved.</span>
-            <span class="footer-designer">Design: <a href="https://templatemo.com/" target="_blank">TemplateMo</a></span>
         </div>
         <div class="footer-accent"></div>
     </footer>
