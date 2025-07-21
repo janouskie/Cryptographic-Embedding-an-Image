@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 import os
 import shutil
@@ -10,6 +9,8 @@ import logging
 import unicodedata
 import concurrent.futures
 from PIL.ExifTags import GPSTAGS, TAGS
+import numpy
+import pprint
 
 try:
     from libmat2 import parser_factory, UNSUPPORTED_EXTENSIONS
@@ -94,7 +95,7 @@ def show_meta(filename: str, sandbox: bool, userInput: int):
     __print_meta(filename, p.get_meta(), userInput)
 
 
-def __print_meta(filename: str, metadata: dict, userInput: int, depth: int = 1):
+def __print_meta(filename: str, metadata: dict, userInput: int, depth: int = 1, ):
     padding = " " * depth*2
     if not metadata:
         print(padding + "No metadata found in %s." % filename)
@@ -122,12 +123,36 @@ def __print_meta(filename: str, metadata: dict, userInput: int, depth: int = 1):
             # print(k)
 
             if (userInput == 1 and k not in {"GPSPosition", "GPSAltitude", "GPSAltitudeRef", "GPSLatitude", "GPSLatitudeRef","GPSLongitude","GPSLongitudeRef"}):
+                print("============================================================")
                 print(" " ,k,v)
+                print("============================================================")
             if (userInput == 2 and k in {"GPSPosition", "GPSAltitude", "GPSAltitudeRef", "GPSLatitude", "GPSLatitudeRef","GPSLongitude","GPSLongitudeRef"}):
                 print("" , k,v)
+                print("============================================================")
+            if (userInput == 3 and k in {"MCCData", "Make","Model","ProfileCopyright"}): 
+                print("" , k,v)
+                print("============================================================")
+            if (userInput == 4 and k in {"MCCData"}): 
+                # print("Removing these values: MCCData")
+                remove_some(["MCCData"],metadata)
+                pprint.pprint(metadata)
+                print("============================================================")
+            if (userInput == 5 and k in {"Make"}): 
+                print("Removing these values: Make")
+                remove_some(["Make"],metadata)
+                pprint.pprint(metadata)
+                print("============================================================")
+            if (userInput == 6): 
+                remove_some(["Model","DeviceModel"],metadata)
+                pprint.pprint(metadata)
+                # print("", k,v)
+
         except UnicodeEncodeError:
             print(padding + "  %s: harmful content" % k)
 
+    
+    # print(" ", metadata)
+    # pprint.pprint(metadata)
 
 def clean_meta(filename: str, is_lightweight: bool, inplace: bool, sandbox: bool,
                policy: UnknownMemberPolicy) -> bool:
@@ -146,6 +171,8 @@ def clean_meta(filename: str, is_lightweight: bool, inplace: bool, sandbox: bool
     try:
         logging.debug('Cleaning %s…', filename)
         ret = p.remove_all()
+        # ret = p.remove_some(True)
+
         if ret is True:
             shutil.copymode(filename, p.output_filename)
             if inplace is True:
@@ -235,3 +262,33 @@ def main() -> int:
 
 if __name__ == '__main__':
     sys.exit(main())
+
+
+# def remove_some(removed_values:List[str],metadata: dict):
+
+#     for i in removed_values:
+#         if i in metadata:
+#             # print(f"{i}: {metadata[i]}") 
+#             del(i)
+#         else:
+#             print("uh oh")
+
+def remove_some(removed_values:List[str],metadata: dict):
+
+    for i in removed_values:
+        if i in metadata:
+            del metadata[i]
+        # else:
+            # print("uh oh")
+       
+
+       
+        # if removed_values in metadata:
+
+        #     # print ("somethings happening")
+        #     print (removed_values)
+        #     # break
+        
+    
+    # else: 
+    #     print("Something went wrong...")
