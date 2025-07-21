@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Metadata Tools{% endblock %}
+{% block content %}
+<div class="centered-form">
+    <div class="form-card unique-meta-card">
+        <div class="meta-icon">&#128247;</div>
+        <h2 class="form-title gradient-text">Metadata Tools</h2>
+        <form method="post" enctype="multipart/form-data">
+            <label for="file" class="meta-label">Upload Image:</label>
+            <div class="custom-file-upload">
+                <input type="file" id="file" name="file" accept="image/*" required>
+                <label for="file" id="file-label">
+                    <span id="file-label-text">&#128206; Choose Image</span>
+                </label>
+                <span id="file-chosen"></span>
+            </div>
+            <div class="button-group">
+                <button class="btn meta-btn" name="action" value="display">&#128196; Display Metadata</button>
+                <button class="btn meta-btn" name="action" value="datetime">&#128337; Show Date/Time</button>
+                <button class="btn btn-danger meta-btn" name="action" value="remove">&#128465; Remove Metadata</button>
+            </div>
+        </form>
+        {% if result %}
+            <div class="metadata-result unique-meta-result">
+                <pre>{{ result }}</pre>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
