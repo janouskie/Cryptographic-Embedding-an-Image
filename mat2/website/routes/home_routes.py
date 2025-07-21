@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from models import User
+import os
+import subprocess
 
 home_bp = Blueprint('home', __name__)
 
@@ -12,10 +14,9 @@ def index():
 def home():
      return render_template('home.html')
 
-@home_bp.route('/mdstrip')
-def mdstrip():
-    return render_template('mdstrip.html')
+
 
 @home_bp.route('/hash')
 def hash():
     return render_template('hash.html')
+

@@ -10,8 +10,8 @@ import requests
 from scapy.all import ARP, Ether, srp
 from models import init_db
 from routes.auth_routes import auth_bp
-#from routes.admin_routes import admin_bp
 from routes.home_routes import home_bp
+from routes.exif_routes import exif_bp
 from routes.profile_routes import prof_bp  
 
 
@@ -23,11 +23,13 @@ init_db(app)
 app.secret_key = '123'
 
 
-# Register blueprints
+  
 app.register_blueprint(prof_bp, url_prefix='/profile')  
 app.register_blueprint(auth_bp, url_prefix='/auth')
 #app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(home_bp)
+app.register_blueprint(exif_bp)
+
 
 # Make session available in templates
 @app.context_processor
@@ -37,7 +39,7 @@ def inject_user():
     return dict(session=session, current_year=datetime.now().year)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    app.run(debug=True, port=80)
 
 
 
