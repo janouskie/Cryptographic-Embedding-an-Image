@@ -15,6 +15,7 @@ from routes.home_routes import home_bp
 from routes.profile_routes import prof_bp  
 from PIL import Image
 from PIL.ExifTags import TAGS
+from routes.exif_routes import exif_bp
 
 
 
@@ -29,7 +30,12 @@ app.secret_key = '123'
 app.register_blueprint(prof_bp, url_prefix='/profile')  
 app.register_blueprint(auth_bp, url_prefix='/auth')
 #app.register_blueprint(admin_bp, url_prefix='/admin')
+
 app.register_blueprint(home_bp)
+
+app.register_blueprint(exif_bp, url_prefix='/exif')
+
+
 
 # Make session available in templates
 @app.context_processor
