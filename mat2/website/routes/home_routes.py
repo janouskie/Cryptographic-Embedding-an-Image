@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from models import User
-from mat2.metadata_tools import display_metadata, display_datetime, remove_metadata
+# from mat2.metadata_tools import display_metadata, display_datetime, remove_metadata
 import os
 from werkzeug.utils import secure_filename
 

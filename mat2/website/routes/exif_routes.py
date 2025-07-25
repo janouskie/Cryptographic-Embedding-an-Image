@@ -1,75 +1,92 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash, request
-from models import User
+from flask import Blueprint, render_template, request, flash, send_file
 import os
 import subprocess
-import urllib.request
-import urllib.parse
-import json
 
 exif_bp = Blueprint('exif', __name__)
 
-
-      
-
-
 @exif_bp.route('/mdstrip', methods=['GET', 'POST'])
+
+
 def mdstrip():
+    metadata_output = []
+    
     if request.method == 'POST':
-        file = request.files['file']
-        exif_option = request.form['exif_option']
-        
-        if file and exif_option:
-            filename = file.filename
-            upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
-            os.makedirs(upload_dir, exist_ok=True)
-            filepath = os.path.join(upload_dir, filename)
-            file.save(filepath)
+        up = request.files.get('file')
+        opt = request.form.get('exif_option')
+        action = request.form.get('action', 'view')
+
+        if not up or not opt:
+            flash("Oops — you need both a file and an EXIF option.", "error")
+            return render_template('mdstrip.html')
+
+        fname = up.filename
+        uploads = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+        os.makedirs(uploads, exist_ok=True)
+        path = os.path.join(uploads, fname)
+        up.save(path)
+
+        exiftool = 'exiftool'
+        cmd = [exiftool]
+
+        # try:
+        #     read_cmd = ['exiftool', path]
+        #     read_result = subprocess.run(read_cmd, capture_output=True, text=True)
+        #     metadata_output.append("METADATA ")
+        #     if read_result.stdout:
+        #         lines = read_result.stdout.strip().split('\n')
+        #         for line in lines:
+        #             if line.strip():
+        #                 metadata_output.append(line.strip())
+                        
+        # except Exception as e:
+        #     print("Error!")
             
-       
-            exiftool_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'exif', 'exiftool-13.32_64', 'exiftool.exe')
             
-            if not os.path.exists(exiftool_path):
-                flash(f"Exiftool not found at: {exiftool_path}", 'error')
-                return render_template('mdstrip.html')
+        if opt == 'comment':
+            val = request.form.get('exif_value', '')
+            cmd.append(f'-Comment={val}')
+
+        elif opt == 'creation_time':
+            dt = request.form.get('exif_value', '')
+            cmd.extend([
+                f'-DateTime={dt}',
+                f'-DateTimeOriginal={dt}',
+                f'-CreateDate={dt}'
+            ])
+
+        elif opt == 'gps_location':
+            loc = request.form.get('exif_value', '')
+            # sketch: geo lookup could go here
+            print("GPS tweak placeholder:", loc)
+
+        elif opt == 'artist':
+            art = request.form.get('exif_value', '')
+            cmd.append(f'-Artist={art}')
+            
+        elif opt == 'view':
+            try: 
+                result = subprocess.run(
+                    [exiftool, path],
+                    capture_output=True,
+                    text=True,
+                    check = True
+                )
                 
-            exiftool_cmd = [exiftool_path]
-            
-            if exif_option == 'comment':
-                exif_value = request.form['exif_value']
-                exiftool_cmd.extend([f'-Comment={exif_value}'])
-            
-            elif exif_option == 'creation_time':
-                exif_value = request.form['exif_value']
-                exiftool_cmd.extend([
-                    f'-DateTime={exif_value}',
-                    f'-DateTimeOriginal={exif_value}',
-                    f'-CreateDate={exif_value}'
-                ])
-            
-            elif exif_option == 'gps_location':
-                location_name = request.form['exif_value']
-               
-          
-            
-            elif exif_option == 'artist':
-                exif_value = request.form['exif_value']
-                exiftool_cmd.extend([f'-Artist={exif_value}'])
-            
-            exiftool_cmd.extend(['-overwrite_original', filepath])
-            
-            try:
-                result = subprocess.run(exiftool_cmd, capture_output=True, text=True, check=True)
-                print(f"Exiftool output: {result.stdout}")
+                metadata_output = result.stdout
+                return render_template('mdstrip.html', metadata_output=metadata_output)
             except subprocess.CalledProcessError as e:
-                print(f"Exiftool error: {e.stderr}")
-                flash(f"Error modifying EXIF data: {e.stderr}", 'error')
-                return render_template('mdstrip.html')
-            
-            updated_filepath = filepath  
-            from flask import send_file
-            return send_file(updated_filepath, as_attachment=True)
-            
-        else:
-            flash('Please select a file and EXIF option', 'error')
-            
+                print("Error!")
+
+        cmd.extend(['-overwrite_original', path])
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            print("Exiftool output:", result.stdout.strip())
+        except subprocess.CalledProcessError as ex:
+            print("Exiftool error:", ex.stderr.strip())
+            flash("Exif operation failed — please check your input.", "error")
+            return render_template('mdstrip.html')
+
+        return send_file(path, as_attachment=True)
+
     return render_template('mdstrip.html')

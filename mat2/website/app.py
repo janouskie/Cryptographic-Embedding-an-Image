@@ -16,6 +16,8 @@ from routes.profile_routes import prof_bp
 from PIL import Image
 from PIL.ExifTags import TAGS
 from routes.exif_routes import exif_bp
+import exiftool
+from exiftool import ExifToolHelper
 
 
 
@@ -66,7 +68,7 @@ def image_meta():
             upload_dir = os.path.join(os.path.dirname(__file__), 'uploads')
             os.makedirs(upload_dir, exist_ok=True)
             filepath = os.path.join(upload_dir, file.filename)
-            file.save(filepath)
+            # file.save(filepath)
             img = Image.open(filepath)
             if action in [1, 2]:
                 result = show_meta(img, action)
@@ -107,6 +109,7 @@ def download_file(filename):
 
 from flask import session, redirect, url_for
 
+
 @app.route('/logout')
 def logout():
     session.clear()
@@ -115,3 +118,17 @@ def logout():
 @app.route('/')
 def index():
     return render_template('home.html')
+
+
+
+        # output = ''
+        # if request.method == 'POST':
+        #     file = request.files['file']
+        
+        #     with ExifToolHelper() as et:
+        #         for d in et.get_metadata(file):
+        #             for k,v in d.items():
+        #                 print(k,v)
+        #                 output = (k,v)
+                 
+        # return render_template('mdstrip.html', output=output)

@@ -18,12 +18,17 @@
             <option value="creation_time">Set Creation Time</option>
             <option value="gps_location">Add GPS by Location Name</option>
             <option value="artist">Add Artist/Author</option>
+             <option value="view">View Metadata</option>
         </select>
         
         <div id="input_container">
             <input type="text" name="exif_value" id="exif_value" placeholder="Enter value" class="form-control mb-3" required>
         </div>
-        
+
+        <div id="output_container">
+            <textarea style="width: 100%; height: 400px; padding: 10px; font-family: monospace;" readonly></textarea>
+        </div>
+
         <button type="submit" class="btn btn-primary">Upload & Add Metadata</button>
         <br>
         
@@ -51,6 +56,8 @@
                 case 'artist':
                     input.placeholder = 'Enter author name';
                     input.type = 'text';
+                    break;
+                case 'view':
                     break;
                 default:
                     input.placeholder = 'Enter value';
