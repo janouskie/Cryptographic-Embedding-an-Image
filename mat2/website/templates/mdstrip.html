@@ -3,72 +3,82 @@
 {% block title %}EXIF Data Editor{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="btn-group"></div>
-    <h3>Add Metadata to Your Images</h3>
-
-   
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file" class="form-control mb-3" required>
-        
-        <label for="exif_option" class="form-label">Select to add Metadata</label>
-        <select name="exif_option" id="exif_option" class="form-control mb-3" required onchange="updateInputField()">
-            <option value="">Choose an option...</option>
-            <option value="comment">Add Comment</option>
-            <option value="creation_time">Set Creation Time</option>
-            <option value="gps_location">Add GPS by Location Name</option>
-            <option value="artist">Add Artist/Author</option>
-             <option value="view">View Metadata</option>
-        </select>
-        
-        <div id="input_container">
-            <input type="text" name="exif_value" id="exif_value" placeholder="Enter value" class="form-control mb-3" required>
-        </div>
-
-        <div id="output_container">
-            <textarea style="width: 100%; height: 400px; padding: 10px; font-family: monospace;" readonly></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Upload & Add Metadata</button>
-        <br>
-        
-    </form>
-
-    <script>
-        function updateInputField() {
-            const select = document.getElementById('exif_option');
-            const input = document.getElementById('exif_value');
-            const container = document.getElementById('input_container');
-            
-            switch(select.value) {
-                case 'comment':
-                    input.placeholder = 'Enter comment';
-                    input.type = 'text';
-                    break;
-                case 'creation_time':
-                    input.placeholder = 'YYYY:MM:DD HH:MM:SS';
-                    input.type = 'text';
-                    break;
-                case 'gps_location':
-                    input.placeholder = 'Enter location';
-                    input.type = 'text';
-                    break;
-                case 'artist':
-                    input.placeholder = 'Enter author name';
-                    input.type = 'text';
-                    break;
-                case 'view':
-                    break;
-                default:
-                    input.placeholder = 'Enter value';
-                    input.type = 'text';
-            }
-            
-            container.innerHTML = '<input type="text" name="exif_value" id="exif_value" placeholder="' + input.placeholder + '" class="form-control mb-3" required>';
-        }
-        
-    </script>
+<div class="centered-form">
+    <div class="form-card unique-meta-card">
+        <div class="meta-icon">&#128247;</div>
+        <h2 class="form-title gradient-text">EXIF Data Editor</h2>
+        <h3 style="text-align:center;">Add Metadata to Your Images</h3>
+        <form method="post" enctype="multipart/form-data" action="{{ url_for('exif.mdstrip') }}">
+            <div class="custom-file-upload">
+                <input type="file" name="file" id="exif_file" required>
+                <label for="exif_file" id="exif_file-label">
+                    <span id="exif_file-label-text">&#128206; Choose Image</span>
+                </label>
+                <span id="exif_file-chosen"></span>
+            </div>
+            <label for="exif_option" class="meta-label">Select to add Metadata</label>
+            <div class="custom-select-wrapper">
+                <span class="select-icon">&#128394;</span>
+                <select name="exif_option" id="exif_option" class="custom-select" required onchange="updateInputField()">
+                    <option value="">Choose an option...</option>
+                    <option value="view">View Metadata</option>
+                    <option value="comment">Add Comment</option>
+                    <option value="creation_time">Set Creation Time</option>
+                    <option value="gps_location">Add GPS by Location Name</option>
+                    <option value="artist">Add Artist/Author</option>
+                </select>
+            </div>
+            <div id="input_container">
+                <input type="text" name="exif_value" id="exif_value" placeholder="Enter value" class="form-control mb-3" required>
+            </div>
+            <div class="button-group">
+                <button type="submit" class="btn meta-btn">Upload & Add Metadata</button>
+            </div>
+        </form>
+        {% if exif_result %}
+            <div class="metadata-result unique-meta-result">
+                <pre>{{ exif_result }}</pre>
+            </div>
+        {% endif %}
+        {% if metadata_output and request.form.get('exif_option') == 'view' %}
+            <form method="post" action="{{ url_for('exif.mdstrip') }}">
+                <textarea id="metadata" name="metadata" rows="15" cols="80" class="json-metadata-box">{{ metadata_output }}</textarea>
+                <input type="hidden" name="original_file" value="{{ original_file }}">
+                <button type="submit" name="save" value="1" class="btn meta-btn">Save Metadata</button>
+            </form>
+        {% endif %}
     </div>
-    
 </div>
+<script>
+document.getElementById('exif_file').addEventListener('change', function(){
+    const fileName = this.files[0] ? this.files[0].name : '';
+    document.getElementById('exif_file-chosen').textContent = fileName;
+});
+function updateInputField() {
+    const select = document.getElementById('exif_option');
+    let placeholder = 'Enter value';
+    let showInput = true;
+    switch(select.value) {
+        case 'view':
+            showInput = false;
+            break;
+        case 'comment':
+            placeholder = 'Enter comment';
+            break;
+        case 'creation_time':
+            placeholder = 'YYYY:MM:DD HH:MM:SS';
+            break;
+        case 'gps_location':
+            placeholder = 'Enter location';
+            break;
+        case 'artist':
+            placeholder = 'Enter author name';
+            break;
+    }
+    document.getElementById('input_container').innerHTML = showInput
+        ? '<input type="text" name="exif_value" id="exif_value" placeholder="' + placeholder + '" class="form-control mb-3" required>'
+        : '';
+}
+</script>
 {% endblock %}
+
