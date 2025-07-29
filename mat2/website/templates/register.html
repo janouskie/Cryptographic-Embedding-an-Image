@@ -18,7 +18,7 @@
         </div>
       {% endif %}
     {% endwith %}
-    <form action="{{ url_for('auth.register') }}" method="post" novalidate>
+    <form action="{{ url_for('auth.reg') }}" method="post" novalidate>
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
         <label for="email">Email:</label>
