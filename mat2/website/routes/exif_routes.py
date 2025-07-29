@@ -1,92 +1,92 @@
-from flask import Blueprint, render_template, request, flash, send_file
+from flask import Blueprint, render_template, request, send_file
 import os
 import subprocess
 
-exif_bp = Blueprint('exif', __name__)
 
-@exif_bp.route('/mdstrip', methods=['GET', 'POST'])
+exiftool = Blueprint('exif', __name__)
 
+# Section for metadata removal & viewing
+
+@exiftool.route('/mdstrip', methods=['GET', 'POST']) #
 
 def mdstrip():
-    metadata_output = []
-    
-    if request.method == 'POST':
-        up = request.files.get('file')
-        opt = request.form.get('exif_option')
-        action = request.form.get('action', 'view')
 
-        if not up or not opt:
-            flash("Oops — you need both a file and an EXIF option.", "error")
-            return render_template('mdstrip.html')
+  if request.method == 'POST':
 
-        fname = up.filename
-        uploads = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
-        os.makedirs(uploads, exist_ok=True)
-        path = os.path.join(uploads, fname)
-        up.save(path)
+    # if User decided to save their metadata
 
-        exiftool = 'exiftool'
-        cmd = [exiftool]
+    if 'save' in request.form:
 
-        # try:
-        #     read_cmd = ['exiftool', path]
-        #     read_result = subprocess.run(read_cmd, capture_output=True, text=True)
-        #     metadata_output.append("METADATA ")
-        #     if read_result.stdout:
-        #         lines = read_result.stdout.strip().split('\n')
-        #         for line in lines:
-        #             if line.strip():
-        #                 metadata_output.append(line.strip())
-                        
-        # except Exception as e:
-        #     print("Error!")
-            
-            
-        if opt == 'comment':
-            val = request.form.get('exif_value', '')
-            cmd.append(f'-Comment={val}')
+      metadata = request.form.get('metadata')
+      file = request.form.get('original_file')
+      upload = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+      path =os.path.join(upload, file)
 
-        elif opt == 'creation_time':
-            dt = request.form.get('exif_value', '')
-            cmd.extend([
-                f'-DateTime={dt}',
-                f'-DateTimeOriginal={dt}',
-                f'-CreateDate={dt}'
-            ])
+      # Then saved into JSON file
 
-        elif opt == 'gps_location':
-            loc = request.form.get('exif_value', '')
-            # sketch: geo lookup could go here
-            print("GPS tweak placeholder:", loc)
+      temp = os.path.join(upload, 'temp_metadata.json')
 
-        elif opt == 'artist':
-            art = request.form.get('exif_value', '')
-            cmd.append(f'-Artist={art}')
-            
-        elif opt == 'view':
-            try: 
-                result = subprocess.run(
-                    [exiftool, path],
-                    capture_output=True,
-                    text=True,
-                    check = True
-                )
-                
-                metadata_output = result.stdout
-                return render_template('mdstrip.html', metadata_output=metadata_output)
-            except subprocess.CalledProcessError as e:
-                print("Error!")
+      with open(temp, 'w') as f:
+        f.write(metadata)
 
-        cmd.extend(['-overwrite_original', path])
+      subprocess.run(['exiftool', f'-json={temp}', '-overwrite_original', path])
+      return send_file(path, as_attachment=True)
 
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            print("Exiftool output:", result.stdout.strip())
-        except subprocess.CalledProcessError as ex:
-            print("Exiftool error:", ex.stderr.strip())
-            flash("Exif operation failed — please check your input.", "error")
-            return render_template('mdstrip.html')
+    up = request.files.get('file')
+    opt =request.form.get('exif_option')
+    val= request.form.get('exif_val', '')
 
-        return send_file(path, as_attachment=True)
 
-    return render_template('mdstrip.html')
+
+    # if user has selected an option of their choice
+
+    if not up or not opt:
+      
+      return render_template('mdstrip.html')
+
+    fname = up.filename
+    upload = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+    os.makedirs(upload, exist_ok=True)
+    path = os.path.join(upload, fname)
+    up.save(path)
+
+
+
+    # if the file you uploaded has .jpg
+
+    if opt == 'view':
+
+      try: # get the metadata
+
+        result = subprocess.run(['exiftool', '-j', path], capture_output=True, text=True, check=True)
+        output = result.stdout
+      except subprocess.CalledProcessError: # case of failure
+        output = ""
+
+      # Only pass metadata_output when viewing
+
+      return render_template('mdstrip.html', metadata_output=output, original_file=fname)
+
+    # For all other options, don't pass metadata_output
+
+    cmd = ['exiftool', '-overwrite_original']
+
+    if opt == 'comment':
+      cmd.append(f'-Comment={val}')
+    elif opt == 'artist':
+      cmd.append(f'-Artist={val}')
+    cmd.append(path)
+
+    # Clean the metadata
+    try:
+
+     subprocess.run(cmd, capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError:
+
+     return render_template('mdstrip.html')
+    return send_file(path, as_attachment=True)
+
+
+
+  # On GET, don't pass metadata_output
+  return render_template('mdstrip.html')
