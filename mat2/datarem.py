@@ -1,69 +1,38 @@
-import os 
-from mat2 import show_meta, clean_meta
-# from libmat2 import _get_member_meta  
-from PIL import Image
-from PIL.ExifTags import GPSTAGS, TAGS
+import os
+from mat2.mat2 import show_meta, clean_meta
+from PIL import Image  # not used directly but just in case
+from PIL.ExifTags import TAGS, GPSTAGS
 
+# PATH GOES HERE — 
+img_path = "/Users/Administrator2/Downloads/Cryptographic-Embedding-an-Image-main 2/second_photos/p2.jpg"
 
-# show_meta("photos/testsubject3.jpg", True)
-# file_location = "/media/sf_Phone_Link/p1.jpg"
-file_location = "/home/jannah/Desktop/projectattempt/mat2/photos/onedrive.jpg"
-# file_location = "/home/jannah/Desktop/projectattempt/mat2/photos/p1.jpg"
+# intro 
+input("press Enter to active the process\n")
 
-
-
-input("Hello! Please press enter to begin the metadata removal / inclusion process \n")
-
-# print (user_choice)
-print('==============================================================')
-print ('Enter 1 to display the metadata of the given file \n')
-print ('Enter 2 to list out the date and time of the file \n')
-print ('Enter 3 to list out the phone model\n')
-print ('Enter 4 to delete JUST the MCC Data\n')
-print ('Enter 5 to delete JUST the Make\n')
-print ('Enter 6 to delete JUST the Model\n')
-
+print("="*60)
+print("1 → see all the metadata information")
+print("2 → show just the date/time")
+print("3 → Delete")
+print("="*60)
 
 while True:
     try:
-        choice = int(input('Enter your choice: '))
+        pick = int(input("... "))
 
-        if (choice == 1):
-            # print("choice no.1")
-            print("Loading...")
-            show_meta(file_location,True, 1)
+        if pick == 1:
+            print("...")
+            show_meta(img_path, True, 1)
 
-        elif (choice == 2):
-            print(" Loading... \n")
-            
-            show_meta(file_location,True, 2)
+        elif pick == 2:
+            print("...\n")
+            show_meta(img_path, True, 2)
 
-        elif (choice == 3):
-            print("Loading...")
-            show_meta(file_location,True, 3)
-            # print_meta()
+        elif pick == 3:
+            print("...")
+            clean_meta(img_path, True, True, True, True)
 
-        elif (choice == 4):
-            print("Loading...")
-            show_meta(file_location,True,4)
-        elif (choice == 5):
-            print("Loading...")
-            show_meta(file_location,True, 5)
-            # print_meta()
-        elif (choice == 6):
-            print("Loading...")
-            show_meta(file_location,True, 6)
-            # print_meta()
-        elif (choice == 7):
-            # print("Removing the metadata of the given file...")
-            clean_meta(file_location,True,True,True,True)
-
-        
         else:
-            print('Invalid choice!')
+            print("...")
 
     except ValueError:
-        print ("Invalid input!")
-
-
-
+        print("...")
