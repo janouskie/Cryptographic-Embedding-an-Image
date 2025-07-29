@@ -20,11 +20,12 @@
                         <a href="{{ url_for('home.mdstrip') }}">MDs</a>
                         <a href="{{ url_for('home.hash') }}">Hash</a>
                         <a href="{{ url_for('home.metadata') }}">Image Metadata Actions</a>
-                        <a href="#">Placeholder</a>
                         {% with messages = get_flashed_messages(with_categories=true) %}
                           {% if messages %}
                             {% for category, message in messages %}
-                              <div class="dropdown-alert alert-{{ category }}">{{ message }}</div>
+                              {% if category != 'metadata' %}
+                                <div class="dropdown-alert alert-{{ category }}">{{ message }}</div>
+                              {% endif %}
                             {% endfor %}
                           {% endif %}
                         {% endwith %}
@@ -32,7 +33,7 @@
                 </div>
             {% else %}
                 <a href="{{ url_for('auth.login') }}">Login</a>
-                <a href="{{ url_for('auth.register') }}">Register</a>
+                <a href="{{ url_for('auth.reg') }}">Register</a>
             {% endif %}
         </div>
         <div class="nav-links nav-links-right"></div>
@@ -43,15 +44,13 @@
     <footer class="site-footer">
         <div class="footer-content">
             <div class="footer-col footer-brand">
-                <span class="footer-logo">&#9632;</span> <!-- Simple logo icon, replace as needed -->
+                <span class="footer-logo">&#9632;</span> <!-- Simple logo icon, rfixeplace as needed -->
                 <span class="footer-title">StegoSafe</span>
             </div>
             <div class="footer-col">
                 <div class="footer-heading">Resources</div>
-                <a href="{{ url_for('home.index') }}">Home</a>
                 <a href="#">How it works</a>
                 <a href="#">FAQs</a>
-                <a href="#">Contact</a>
             </div>
             <div class="footer-col">
                 <div class="footer-heading">Information</div>
@@ -59,7 +58,7 @@
                 <a href="mailto:info@yoursite.com" class="footer-info">info@yoursite.com</a>
             </div>
             <div class="footer-col footer-lang">
-                <button class="footer-lang-btn">English &#9662;</button>
+              
             </div>
         </div>
         <div class="footer-bottom">
