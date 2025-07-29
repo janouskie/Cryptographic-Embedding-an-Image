@@ -1,113 +1,125 @@
-import sys
 import os
+import sys
+
+# add root folder to sys path for imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
-import sqlite3
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
-import requests
-from scapy.all import ARP, Ether, srp
 from models import init_db
+
+# Blueprints
 from routes.auth_routes import auth_bp
-#from routes.admin_routes import admin_bp
 from routes.home_routes import home_bp
-from routes.profile_routes import prof_bp  
+from routes.profile_routes import prof_bp
+# from routes.admin_routes import admin_bp
+from routes.exif_routes import exiftool
+
+# Image + metadata stuff
 from PIL import Image
 from PIL.ExifTags import TAGS
-from routes.exif_routes import exif_bp
-import exiftool
-from exiftool import ExifToolHelper
+import subprocess
 
+# other stuff 
+from scapy.all import ARP, Ether, srp
 
-
+# app setup
 app = Flask(__name__)
-
-# Initialize the database
-init_db(app)
 app.secret_key = '123'
+init_db(app)
 
-
-# Register blueprints
-app.register_blueprint(prof_bp, url_prefix='/profile')  
-app.register_blueprint(auth_bp, url_prefix='/auth')
-#app.register_blueprint(admin_bp, url_prefix='/admin')
-
-app.register_blueprint(home_bp)
-
-app.register_blueprint(exif_bp, url_prefix='/exif')
-
-
-
-# Make session available in templates
-@app.context_processor
-def inject_user():
-    from flask import session
-    from datetime import datetime
-    return dict(session=session, current_year=datetime.now().year)
-
-if __name__ == '__main__':
-    app.run(debug=True, port=8080)
-
-
-
-UPLOAD_FOLDER = '/photos'
+# upload settings
+app.config['UPLOAD_FOLDER'] = '/photos'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+# route blueprints
+app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(prof_bp, url_prefix='/profile')
+# app.register_blueprint(admin_bp, url_prefix='/admin')
+app.register_blueprint(home_bp)
+app.register_blueprint(exiftool)
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# make session + year available to templates
+@app.context_processor
+def inject_context_vars():
+    return dict(session=session, current_year=datetime.now().year)
+
+
+# this handles metadata actions from a form
 @app.route('/image-meta', methods=['GET', 'POST'])
 def image_meta():
-    result = ""
-    download_link = None
     if request.method == 'POST':
-        file = request.files['file']
-        action = int(request.form['action'])
-        if file:
-            upload_dir = os.path.join(os.path.dirname(__file__), 'uploads')
-            os.makedirs(upload_dir, exist_ok=True)
-            filepath = os.path.join(upload_dir, file.filename)
-            # file.save(filepath)
-            img = Image.open(filepath)
-            if action in [1, 2]:
-                result = show_meta(img, action)
-            elif action == 3:
-                output_file = clean_meta(img, filepath)
-                download_link = url_for('download_file', filename=os.path.basename(output_file))
-                result = f"Metadata removed. <a href='{download_link}'>Download cleaned image</a>"
-    return render_template('image_meta.html', result=result, download_link=download_link)
+        file = request.files.get('file')
+        action = request.form.get('action')
 
+        if not file:
+            return "<span style='color:red'>No file selected. Try again.</span>"
+
+        uploads_dir = os.path.join(os.path.dirname(__file__), 'uploads')
+        os.makedirs(uploads_dir, exist_ok=True)
+        saved_path = os.path.join(uploads_dir, file.filename)
+        file.save(saved_path)
+
+        try:
+            img = Image.open(saved_path)
+        except Exception:
+            return "Something went wrong opening the image."
+
+        result = ""
+        link = None
+
+        if action == "display":
+            result = show_meta(img, 1)
+
+        elif action == "datetime":
+            result = show_meta(img, 2)
+
+        elif action == "remove":
+            cleaned_file = clean_meta(img, saved_path)
+            if cleaned_file and os.path.exists(cleaned_file):
+                link = url_for('download_file', filename=os.path.basename(cleaned_file))
+                result = f"Metadata cleaned! <a href='{link}'>Download here</a>"
+            else:
+                result = "Couldn’t clean metadata. Try another file?"
+
+        return f"<div class='metadata-result unique-meta-result'><pre>{result}</pre></div>"
+
+    return render_template('metadata.html')
+
+
+# show metadata or just the date tags
 def show_meta(img, mode):
-    exif_data = img._getexif()
-    if not exif_data:
-        return "No EXIF metadata found."
-    output = []
-    if mode == 1:
-        for tag_id, value in exif_data.items():
-            tag = TAGS.get(tag_id, tag_id)
-            output.append(f"{tag:25}: {value}")
-    elif mode == 2:
-        for tag_id, value in exif_data.items():
-            tag = TAGS.get(tag_id, tag_id)
-            if "Date" in str(tag) or "Time" in str(tag):
-                output.append(f"{tag:25}: {value}")
-    return "<br>".join(output)
+    exif = img._getexif()
+    if not exif:
+        return "No metadata found in this image."
 
-def clean_meta(img, filename):
-    data = list(img.getdata())
-    img_no_exif = Image.new(img.mode, img.size)
-    img_no_exif.putdata(data)
-    output_file = filename.replace(".jpg", "_cleaned.jpg")
-    img_no_exif.save(output_file)
-    return output_file
+    out = []
+    for tag_id, val in exif.items():
+        tag = TAGS.get(tag_id, tag_id)
+        if mode == 1:
+            out.append(f"{tag:25}: {val}")
+        elif mode == 2 and ("Date" in tag or "Time" in tag):
+            out.append(f"{tag:25}: {val}")
+
+    return "<br>".join(out)
+
+
+# clean metadata using exiftool
+def clean_meta(img, filepath):
+    cleaned_path = filepath.rsplit('.', 1)[0] + "_cleaned." + filepath.rsplit('.', 1)[-1]
+    try:
+        subprocess.run(['exiftool', '-all=', '-o', cleaned_path, filepath], check=True)
+        return cleaned_path
+    except Exception:
+        return None
+
 
 @app.route('/uploads/<filename>')
 def download_file(filename):
-    upload_dir = os.path.join(os.path.dirname(__file__), 'uploads')
-    return send_from_directory(upload_dir, filename, as_attachment=True)
-
-from flask import session, redirect, url_for
+    folder = os.path.join(os.path.dirname(__file__), 'uploads')
+    return send_from_directory(folder, filename, as_attachment=True)
 
 
 @app.route('/logout')
@@ -115,20 +127,23 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
+
 @app.route('/')
 def index():
     return render_template('home.html')
 
 
+if __name__ == '__main__':
+    app.run(debug=True, port=8080)
 
-        # output = ''
-        # if request.method == 'POST':
-        #     file = request.files['file']
-        
-        #     with ExifToolHelper() as et:
-        #         for d in et.get_metadata(file):
-        #             for k,v in d.items():
-        #                 print(k,v)
-        #                 output = (k,v)
-                 
-        # return render_template('mdstrip.html', output=output)
+##########################################################################################################ß
+
+    "REFERENCES"
+
+    # https://flask.palletsprojects.com/en/2.3.x/templating/#context-processors
+    # https://flask.palletsprojects.com/en/2.3.x/patterns/fileuploads/
+    # https://flask.palletsprojects.com/en/2.3.x/api/#incoming-request-data
+    # https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image._getexif
+    # https://exiftool.org/
+    # https://flask.palletsprojects.com/en/2.3.x/api/#flask.session
+    # https://flask.palletsprojects.com/en/2.3.x/quickstart/#rendering-templatesß
