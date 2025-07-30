@@ -26,6 +26,7 @@
                     <option value="creation_time">Set Creation Time</option>
                     <option value="gps_location">Add GPS by Location Name</option>
                     <option value="artist">Add Artist/Author</option>
+                    <option value="model">Change Phone Model</option>
                 </select>
             </div>
             <div id="input_container">
@@ -40,7 +41,8 @@
                 <pre>{{ exif_result }}</pre>
             </div>
         {% endif %}
-        {% if metadata_output and request.form.get('exif_option') == 'view' %}
+            
+            {% if metadata_output and request.form.get ('exif_option') in ['view', 'gps_location', 'model'] %}
             <form method="post" action="{{ url_for('exif.mdstrip') }}">
                 <textarea id="metadata" name="metadata" rows="15" cols="80" class="json-metadata-box">{{ metadata_output }}</textarea>
                 <input type="hidden" name="original_file" value="{{ original_file }}">
@@ -69,7 +71,10 @@ function updateInputField() {
             placeholder = 'YYYY:MM:DD HH:MM:SS';
             break;
         case 'gps_location':
-            placeholder = 'Enter location';
+            showInput = false;
+            break;
+        case 'model':
+            showInput = false;
             break;
         case 'artist':
             placeholder = 'Enter author name';

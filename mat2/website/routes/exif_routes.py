@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, send_file
 import os
 import subprocess
-
+import json
 
 exiftool = Blueprint('exif', __name__)
 
@@ -54,7 +54,8 @@ def mdstrip():
 
     # if the file you uploaded has .jpg
 
-    if opt == 'view':
+    # if opt == 'view' or opt == 'gps_location' or opt == 'model':
+    if opt in ['view', 'gps_location', 'model']:
 
       try: # get the metadata
 
@@ -63,6 +64,35 @@ def mdstrip():
       except subprocess.CalledProcessError: # case of failure
         output = ""
 
+      if opt == 'gps_location':
+        try:
+          data = json.loads(output)
+          gps_info = {}
+          for tag, value in data[0].items():
+            if 'GPS' in tag:
+              gps_info[tag] = value
+
+          if gps_info: 
+            output = json.dumps(gps_info)
+          else:
+            output = "No GPS information found"
+        except:
+          ""
+          
+      if opt == 'model':
+        try:
+          data = json.loads(output)
+          model_info = {}
+          for tag, value in data[0].items():
+            if tag.lower() in ['model','make', 'device manufacturer']:
+              model_info[tag] = value
+              
+            if model_info: 
+              output = json.dumps(model_info)
+            else:
+              output = "No phone information found"
+        except:
+          ""
       # Only pass metadata_output when viewing
 
       return render_template('mdstrip.html', metadata_output=output, original_file=fname)
@@ -73,6 +103,8 @@ def mdstrip():
 
     if opt == 'comment':
       cmd.append(f'-Comment={val}')
+    if opt == 'model':
+      cmd.append(f'-Model={val}')
     elif opt == 'artist':
       cmd.append(f'-Artist={val}')
     cmd.append(path)

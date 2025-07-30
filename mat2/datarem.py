@@ -1,5 +1,5 @@
 import os
-from mat2.mat2 import show_meta, clean_meta
+from mat2 import show_meta, clean_meta
 from PIL import Image  # not used directly but just in case
 from PIL.ExifTags import TAGS, GPSTAGS
 

@@ -11,10 +11,11 @@ import concurrent.futures
 from PIL.ExifTags import GPSTAGS, TAGS
 import numpy
 import pprint
+from libmat2 import parser_factory
+from libmat2 import check_dependencies, UnknownMemberPolicy
 
 try:
-    from libmat2 import parser_factory, UNSUPPORTED_EXTENSIONS
-    from libmat2 import check_dependencies, UnknownMemberPolicy
+    print("")
 except ValueError as e:
     print(e)
     sys.exit(1)
@@ -60,7 +61,7 @@ def create_arg_parser() -> argparse.ArgumentParser:
                         help='clean in place, without backup')
     parser.add_argument('--no-sandbox', dest='sandbox', action='store_true',
                         default=False, help='Disable bubblewrap\'s sandboxing.')
-
+# 
     excl_group = parser.add_mutually_exclusive_group()
     excl_group.add_argument('files', nargs='*', help='the files to process',
                             default=[])

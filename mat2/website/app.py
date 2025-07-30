@@ -72,7 +72,7 @@ def image_meta():
 
         if action == "display":
             result = show_meta(img, 1)
-
+            
         elif action == "datetime":
             result = show_meta(img, 2)
 
