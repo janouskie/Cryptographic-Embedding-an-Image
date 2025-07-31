@@ -63,36 +63,42 @@ def mdstrip():
         output = result.stdout
       except subprocess.CalledProcessError: # case of failure
         output = ""
-
-      if opt == 'gps_location':
+        
+      if opt == 'model':
+        
+        #looping through the metadata
         try:
-          data = json.loads(output)
+          grabbing_metadata = json.loads(output)
+          model_info = {}
+          for data_tag, value in grabbing_metadata[0].items():
+            if data_tag.lower() in ['model','make', 'device manufacturer']:
+              model_info[data_tag] = value
+              
+          if model_info: 
+            output = json.dumps(model_info)
+          else:
+            output = "No phone information found"
+        except:
+          output = "Something went wrong, try again?"
+          
+      elif opt == 'gps_location':
+        
+        #looping through the metadata
+        try:
+          grabbing_metadata = json.loads(output)
           gps_info = {}
-          for tag, value in data[0].items():
-            if 'GPS' in tag:
-              gps_info[tag] = value
+          for data_tag, value in grabbing_metadata[0].items():
+            if 'GPS' in data_tag:
+              gps_info[data_tag] = value
 
           if gps_info: 
             output = json.dumps(gps_info)
           else:
             output = "No GPS information found"
         except:
-          ""
+          output = "Something went wrong, try again?"
           
-      if opt == 'model':
-        try:
-          data = json.loads(output)
-          model_info = {}
-          for tag, value in data[0].items():
-            if tag.lower() in ['model','make', 'device manufacturer']:
-              model_info[tag] = value
-              
-            if model_info: 
-              output = json.dumps(model_info)
-            else:
-              output = "No phone information found"
-        except:
-          ""
+      
       # Only pass metadata_output when viewing
 
       return render_template('mdstrip.html', metadata_output=output, original_file=fname)
@@ -103,8 +109,10 @@ def mdstrip():
 
     if opt == 'comment':
       cmd.append(f'-Comment={val}')
-    if opt == 'model':
+    elif opt == 'model':
       cmd.append(f'-Model={val}')
+    elif opt == 'gps_location':
+      cmd.append(f'-GPS={val}')
     elif opt == 'artist':
       cmd.append(f'-Artist={val}')
     cmd.append(path)
