@@ -111,8 +111,8 @@ def mdstrip():
       cmd.append(f'-Comment={val}')
     elif opt == 'model':
       cmd.append(f'-Model={val}')
-    elif opt == 'gps_location':
-      cmd.append(f'-GPS={val}')
+    elif opt == 'gps_location': # In GPSPosition only edit for e.x "N, 122 deg 25' 7.84\" W"}" to see change
+      cmd.append(f'-GPS={val}') # In GPSAltitude only edit the meters value to see change
     elif opt == 'artist':
       cmd.append(f'-Artist={val}')
     cmd.append(path)
