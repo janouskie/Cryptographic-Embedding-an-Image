@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from PIL import Image
+import platform
 
 stego_bp = Blueprint('stego', __name__)
 
@@ -58,6 +59,13 @@ def stego():
 def getfile(filename):
     return send_from_directory(UPLOADS_DIR, filename, as_attachment=True)
 
+#function to write device name if author not present
+def get_current_device():
+    try:
+        return platform.node()  
+    except:
+        return "Unknown Device"
+
 def meta_parse(imagepath, selectedtypes):
     try:
         result = subprocess.run([EXIFTOOL_PATH, '-j', imagepath], capture_output=True, text=True, check=True)
@@ -72,6 +80,11 @@ def meta_parse(imagepath, selectedtypes):
                 author = next((metadata.get(tag) for tag in EMBED_FIELDS['author'] if metadata.get(tag)), None)
                 if author:
                     f.write(f"Author: {author}\n")
+                    hasdata = True
+                else:
+                    # If no author found use current device name
+                    current_device = get_current_device()
+                    f.write(f"Author: {current_device}\n")
                     hasdata = True
                     
             # Creation Time
