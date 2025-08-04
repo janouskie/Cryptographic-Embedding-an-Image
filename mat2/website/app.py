@@ -15,8 +15,9 @@ from routes.home_routes import home_bp
 from routes.profile_routes import prof_bp
 # from routes.admin_routes import admin_bp
 from routes.exif_routes import exiftool
+from routes.stego_routes import stego_bp
 
-# Image + metadata stuff
+# Image  metadata stuff
 from PIL import Image
 from PIL.ExifTags import TAGS
 import subprocess
@@ -37,8 +38,10 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(prof_bp, url_prefix='/profile')
 # app.register_blueprint(admin_bp, url_prefix='/admin')
+
 app.register_blueprint(home_bp)
 app.register_blueprint(exiftool)
+app.register_blueprint(stego_bp)
 
 
 # make session + year available to templates

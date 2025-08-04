@@ -1,0 +1,17 @@
+<form method="POST" enctype="multipart/form-data">
+    <label>Select image (only PNG and JPG supported):</label>
+    <input type="file" name="file" accept=".png,.jpg,.jpeg" required><br><br>
+    
+    <label>Select metadata to embed:</label><br>
+    <input type="checkbox" name="metadata_types" value="author" checked> Author<br>
+    <input type="checkbox" name="metadata_types" value="creation_time" checked> Creation Time<br>
+    <input type="checkbox" name="metadata_types" value="location" checked> Location (GPS)<br>
+    <input type="checkbox" name="metadata_types" value="device_type" checked> Device Type<br>
+    <br>
+    
+    <button type="submit">Embed Selected Metadata via LSB</button>
+</form>
+
+{% if result %}
+    <div style="margin-top:20px;">{{ result|safe }}</div>
+{% endif %}

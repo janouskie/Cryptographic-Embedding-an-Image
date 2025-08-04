@@ -19,6 +19,7 @@
                     <div class="dropdown-content">
                         <a href="{{ url_for('home.mdstrip') }}">MDs</a>
                         <a href="{{ url_for('home.hash') }}">Hash</a>
+                        <a href="{{ url_for('home.stego') }}">Embed</a>
                         <a href="{{ url_for('home.metadata') }}">Image Metadata Actions</a>
                         {% with messages = get_flashed_messages(with_categories=true) %}
                           {% if messages %}
