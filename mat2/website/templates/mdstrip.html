@@ -3,7 +3,6 @@
 {% block title %}EXIF Data Editor{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href = "style.css">
 <div class="centered-form">
     <div class="form-card unique-meta-card">
         <div class="meta-icon">&#128247;</div>
@@ -17,7 +16,6 @@
                 </label>
                 <span id="exif_file-chosen"></span>
             </div>
-
             <label for="exif_option" class="meta-label">Select to add Metadata</label>
             <div class="custom-select-wrapper">
                 <span class="select-icon">&#128394;</span>
@@ -30,43 +28,6 @@
                     <option value="artist">Modify Artist</option>
                     <option value="model">Modify Phone Model</option>
                 </select>
-            
-            <div id="model_dropdown" style = "display: none;">
-                <label for = "phone_options">Select phone models: </label>
-                <select name = "phone_model" id= "model options">
-                    <option value = "iphone_15_pro">Iphone 15 Pro</option>
-                    <option value = "iphone_15">Iphone 15</option>
-                    <option value = "iphone_14_pro">Iphone 14 Pro</option>
-                    <option value = "iphone_14">Iphone 14</option>
-                    <option value = "iphone_13_pro">Iphone 13 Pro</option>
-                    <option value = "iphone_13">Iphone 13</option>
-                    <option value = "iphone_12_pro">Iphone 12 Pro</option>
-                    <option value = "samsung_s24_ultra">Samsung S24 Ultra</option>
-                    <option value = "samsung_s24">Samsung S24</option>
-                    <option value = "samsung_s23_ultra">Samsung S23 Ultra</option>
-                    <option value = "samsung_s23">Samsung S23</option>
-                    <option value = "samsung_z_flip">Samsung Z Flip</option>
-                    <option value = "samsung_s22_ultra">Samsung S22 Ultra</option>
-                    <option value = "samsung_s22">Samsung S22</option>
-                </select>
-            </div>
-
-            <script>
-                function dropdown(){
-                    const exifChoice = document.getElementById("exif_option");
-                    const modelChoice = document.getElementById("model_dropdown");
-
-                    if (exifChoice.value == 'model') {
-                        modelChoice.style.display = "block";
-                    }
-                    else {
-                        modelChoice.style.display = "none";
-                    }
-                }
-            </script>
-                 
-
-
             </div>
             <div id="input_container">
                 <input type="hidden" name="exif_value" id="exif_value" placeholder="Enter value" class="form-control mb-3" required>
@@ -97,17 +58,6 @@ document.getElementById('exif_file').addEventListener('change', function(){
 });
 function updateInputField() {
     const select = document.getElementById('exif_option');
-
-    const exifChoice = document.getElementById("exif_option");
-    const modelChoice = document.getElementById("model_dropdown");
-
-    if (exifChoice.value == 'model') {
-        modelChoice.style.display = "block";
-    }
-    else {
-        modelChoice.style.display = "none";
-    }
-
     let placeholder = 'Enter value';
     let showInput = true;
     switch(select.value) {
