@@ -21,6 +21,11 @@ def index():
 def home():
     return render_template('home.html')
 
+@home_bp.route('/stego')
+def stego():
+    return render_template('steg.html')
+
+
 
 @home_bp.route('/mdstrip')
 def mdstrip():
