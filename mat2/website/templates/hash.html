@@ -7,42 +7,69 @@
     <div class="form-card unique-meta-card">
         <div class="meta-icon">&#128273;</div>
         <h2 class="form-title gradient-text">Check Hash</h2>
+        <div id="hash-error" style="color:red; margin-bottom:1rem;"></div>
         <form method="post" enctype="multipart/form-data">
             <label for="file1" class="meta-label">Upload file one here:</label>
             <div class="custom-file-upload">
-                <input type="file" id="file1" name="file1" required>
+                <input type="file" id="file1" name="file1">
                 <label for="file1" id="file1-label">
                     <span id="file1-label-text">&#128206; Choose File</span>
                 </label>
-                <span id="file1-chosen"></span>
+                <span id="file-chosen-1" class="file-chosen"></span>
             </div>
             <label for="file2" class="meta-label">Upload file two here:</label>
             <div class="custom-file-upload">
-                <input type="file" id="file2" name="file2" required>
+                <input type="file" id="file2" name="file2">
                 <label for="file2" id="file2-label">
                     <span id="file2-label-text">&#128206; Choose File</span>
                 </label>
-                <span id="file2-chosen"></span>
+                <span id="file-chosen-2" class="file-chosen"></span>
             </div>
             <div class="button-group">
                 <button class="btn meta-btn" name="action" value="check">&#128273; Check Hash</button>
             </div>
         </form>
+        <div id="result"></div>
         {% if result %}
-            <div class="metadata-result unique-meta-result">
-                <pre>{{ result }}</pre>
-            </div>
+          <div class="metadata-result unique-meta-result">
+            <pre>{{ result }}</pre>
+          </div>
         {% endif %}
     </div>
 </div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 <script>
-document.getElementById('file1').addEventListener('change', function(){
+  // Show chosen file names for both file inputs
+  document.getElementById('file1').addEventListener('change', function(){
     const fileName = this.files[0] ? this.files[0].name : '';
-    document.getElementById('file1-chosen').textContent = fileName;
-});
-document.getElementById('file2').addEventListener('change', function(){
+    document.getElementById('file-chosen-1').textContent = fileName;
+  });
+  document.getElementById('file2').addEventListener('change', function(){
     const fileName = this.files[0] ? this.files[0].name : '';
-    document.getElementById('file2-chosen').textContent = fileName;
-});
+    document.getElementById('file-chosen-2').textContent = fileName;
+  });
+
+  // Validate on form submit
+
+  
+  document.querySelector('form').addEventListener('submit', function(e){
+    const file1 = document.getElementById('file1').files[0];
+    const file2 = document.getElementById('file2').files[0];
+    if (!file1 || !file2) {
+      e.preventDefault();
+      document.getElementById('result').innerHTML =
+        "<div class='metadata-result unique-meta-result'><pre>Please select both files.</pre></div>";
+    } else {
+      document.getElementById('result').innerHTML = "";
+    }
+  });   
 </script>
 {% endblock %}
