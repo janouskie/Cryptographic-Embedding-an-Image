@@ -12,15 +12,15 @@
                 <label for="file" id="file-label">
                     <span id="file-label-text">&#128206; Choose Image</span>
                 </label>
-                <span id="file-chosen"></span>
+                <span id="file-chosen" class="file-chosen"></span>
             </div>
             <div class="button-group">
-                <button type="button" class="btn meta-btn" id="displayBtn">&#128196; Display Metadata</button>
-                <button type="button" class="btn meta-btn" id="datetimeBtn">&#128337; Show Date/Time</button>
-                <button type="button" class="btn btn-danger meta-btn" id="removeBtn">&#128465; Remove Metadata</button>
+                <button type="button" class="btn meta-btn" id="display">&#128196; Display Metadata</button>
+                <button type="button" class="btn meta-btn" id="datetime">&#128337; Show Date/Time</button>
+                <button type="button" class="btn btn-danger meta-btn" id="remove">&#128465; Remove Metadata</button>
             </div>
+            <div id="result"></div>
         </form>
-        <div id="result"></div>
     </div>
 </div>
 <script>
@@ -31,30 +31,46 @@ document.getElementById('file').addEventListener('change', function(e) {
     document.getElementById('file-chosen').textContent = selectedFile ? selectedFile.name : '';
 });
 
-function sendMetaAction(action) {
-    if (!selectedFile) {
-        document.getElementById('result').innerHTML = "<span style='color:red'>Please select an image first.</span>";
+
+// Input Validation error
+
+function Meta(action) { // calls when user clicks a button
+    if (!selectedFile) { // if not selected
+        document.getElementById('result').innerHTML =
+          "<div class='metadata-result unique-meta-result'><pre>Please select an image first.</pre></div>";
         return;
     }
-    let formData = new FormData();
+
+    
+    let formData = new FormData(); // action to perform display, datetime or remove feature
     formData.append('file', selectedFile);
     formData.append('action', action);
 
-    fetch('/image-meta', {
-        method: 'POST',
+    fetch('/image-meta', { // to avoid reloading the page
+        method: 'POST', //
         body: formData
     })
-    .then(response => response.text())
+    .then(a => a.text()) // updates the page
     .then(html => {
-        document.getElementById('result').innerHTML = html;
+        document.getElementById('result').innerHTML = html; // if successful
     })
-    .catch(error => {
-        document.getElementById('result').innerHTML = "Error: " + error;
+    .catch(error => { 
+        document.getElementById('result').innerHTML = 
+        "<div class='metadata-result unique-meta-result'><pre>Error found: " + error + "</pre></div>";  // if failed
     });
 }
 
-document.getElementById('displayBtn').onclick = function() { sendMetaAction('display'); };
-document.getElementById('datetimeBtn').onclick = function() { sendMetaAction('datetime'); };
-document.getElementById('removeBtn').onclick = function() { sendMetaAction('remove'); };
+document.getElementById('display').onclick = function() { Meta('display'); };
+document.getElementById('datetime').onclick = function() { Meta('datetime'); };
+document.getElementById('remove').onclick = function() { Meta('remove'); }; 
+
 </script>
 {% endblock %}
+
+/* REFERENCES for javascript
+
+1. https://www.youtube.com/watch?v=zUcc4vW-jsI&t=194s
+2. https://www.youtube.com/watch?v=cei2Ch683q0&t=451s
+3. https://stackoverflow.com/questions/68852641
+4. https://www.w3schools.com/js/js_api_fetch.asp?
+*/
