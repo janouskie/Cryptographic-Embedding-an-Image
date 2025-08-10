@@ -35,7 +35,7 @@ def grab_all_metadata(pic_path):
         return f"error has occured: {e}"
 
 
-# ok this one’s only for when/where the pic was taken (or whatever date stuff is there)
+# this one’s only for when/where the pic was taken (or whatever date stuff is there)
 def only_the_dates(pic_path):
     if not os.path.exists(pic_path):
         return "missing file? "
