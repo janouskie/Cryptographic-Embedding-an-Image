@@ -1,7 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, send_file
 from models import db, User
-from mat2 import *
+from mat2.mat2 import clean_meta
 import re
+from PIL import Image
+import io
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -72,7 +74,7 @@ def login():
     flash("✨ metadata been wiped", "metadata")
     return redirect(url_for('home.home'))
   else:
-   flash("try again", 'error')
+   flash("Username or password is incorrect", 'error')
    return redirect(url_for('auth.login'))
 
  return render_template('login.html')
@@ -88,11 +90,6 @@ def logout():
  return redirect(url_for('auth.login'))
 
 
-# This where user can reset their password but incomplete 
-@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
-def forgot_password():
- if request.method=='POST':
-  e = request.form.get('email')
-  flash("Link been sent to your email address", 'info')
-  return redirect(url_for('auth.login'))
- return render_template('forgot_password.html')
+
+
+
