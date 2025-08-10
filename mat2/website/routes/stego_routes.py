@@ -12,8 +12,10 @@ stego_bp = Blueprint('stego', __name__)
 UPLOADS_DIR = os.path.join(os.path.dirname(__file__), '..', 'uploads')
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 
-# Path to exiftool 
-EXIFTOOL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'exif', 'exiftool-13.32_64', 'exiftool.exe'))
+# Path to exiftool (Mac/Linux version, must be installed and in PATH)
+EXIFTOOL_PATH = '/opt/homebrew/bin/exiftool'
+"ON WINDOWS MACHINE use:" 
+# EXIFTOOL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'exif', 'exiftool-13.32_64', 'exiftool.exe'))
 
 # Only these fields can be embedded
 EMBED_FIELDS = {
@@ -49,7 +51,7 @@ def stego():
             lsbfile = lsbembed(saved_path, txtfile)
             if lsbfile:
                 download_link = url_for('stego.getfile', filename=os.path.basename(lsbfile))
-                result = f"Metadata embedded via LSB! <a href='{download_link}'>Download</a>"
+                return render_template('steg.html', result="Metadata embedded via LSB!", download_link=download_link) # i added this line
         else:
             result = "Metadata extraction failed"
 
