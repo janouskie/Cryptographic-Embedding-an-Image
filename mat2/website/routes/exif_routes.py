@@ -34,7 +34,7 @@ def mdstrip():
 
     up = request.files.get('file')
     opt =request.form.get('exif_option')
-    val= request.form.get('exif_val', '')
+    val= request.form.get('exif_value', '')
 
 
 
@@ -115,6 +115,10 @@ def mdstrip():
       cmd.append(f'-GPS={val}') # In GPSAltitude only edit the meters value to see change
     elif opt == 'artist':
       cmd.append(f'-Artist={val}')
+    elif opt == 'creation_time':
+      cmd.append(f'-CreateDate={val}')
+      cmd.append(f'-DateTimeOriginal={val}')
+      cmd.append(f'-ModifyDate={val}')
     cmd.append(path)
 
     # Clean the metadata
