@@ -1,17 +1,78 @@
-<form method="POST" enctype="multipart/form-data">
-    <label>Select image (only PNG and JPG supported):</label>
-    <input type="file" name="file" accept=".png,.jpg,.jpeg" required><br><br>
-    
-    <label>Select metadata to embed:</label><br>
-    <input type="checkbox" name="metadata_types" value="author" checked> Author<br>
-    <input type="checkbox" name="metadata_types" value="creation_time" checked> Creation Time<br>
-    <input type="checkbox" name="metadata_types" value="location" checked> Location (GPS)<br>
-    <input type="checkbox" name="metadata_types" value="device_type" checked> Device Type<br>
-    <br>
-    
-    <button type="submit">Embed Selected Metadata via LSB</button>
-</form>
+{% extends "base.html" %}
 
-{% if result %}
-    <div style="margin-top:20px;">{{ result|safe }}</div>
-{% endif %}
+{% block title %}LSB Steganography{% endblock %}
+
+{% block content %}
+<div class="centered-card-container">
+    <div class="modern-card-grid">
+        <div class="modern-card unique-meta-card">
+            <div class="meta-icon">🖼️</div>
+            <h2 class="gradient-text">LSB Steganography</h2>
+            <p>
+                Hide selected metadata inside your image using Least Significant Bit (LSB) embedding.<br>
+                <span style="font-size:0.98em;color:#888;">(PNG and JPG supported)</span>
+            </p>
+            <form method="POST" enctype="multipart/form-data" style="width:100%;">
+                <div class="custom-file-upload">
+                    <input type="file" id="file" name="file" accept=".png,.jpg,.jpeg">
+                    <label for="file">📎 Choose Image</label>
+                    <span id="file-chosen" class="file-chosen"></span>
+                </div>
+                <div class="meta-label">Select metadata to embed:</div>
+                <div class="meta-checkbox-group">
+                    <label class="meta-checkbox">
+                        <input type="checkbox" name="metadata_types" value="author" checked>
+                        <span class="checkmark"></span>
+                        Author
+                    </label>
+                    <label class="meta-checkbox">
+                        <input type="checkbox" name="metadata_types" value="creation_time" checked>
+                        <span class="checkmark"></span>
+                        Creation Time
+                    </label>
+                    <label class="meta-checkbox">
+                        <input type="checkbox" name="metadata_types" value="location" checked>
+                        <span class="checkmark"></span>
+                        Location (GPS)
+                    </label>
+                    <label class="meta-checkbox">
+                        <input type="checkbox" name="metadata_types" value="device_type" checked>
+                        <span class="checkmark"></span>
+                        Device Type
+                    </label>
+                </div>
+                <button class="btn meta-btn" type="submit" style="width:100%;">Embed Selected Metadata via LSB</button>
+                <div id="result"></div>
+                {% if error %}
+                  <div class="metadata-result unique-meta-result">
+                    <pre>{{ error }}</pre>
+                  </div>
+                {% endif %}
+                {% if result %}
+                  <div class="metadata-result unique-meta-result">
+                    <pre>{{ result }}</pre>
+                  </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+  // Show chosen file name for the image input
+  document.getElementById('file').addEventListener('change', function(){
+    const fileName = this.files[0] ? this.files[0].name : '';
+    document.getElementById('file-chosen').textContent = fileName;
+  });
+
+  document.querySelector('form').addEventListener('submit', function(e){
+    const file = document.getElementById('file').files[0];
+    if (!file) {
+      e.preventDefault();
+      document.getElementById('result').innerHTML =
+        "<div class='metadata-result unique-meta-result'><pre>Please select an image file.</pre></div>";
+    } else {
+      document.getElementById('result').innerHTML = "";
+    }
+  });
+</script>
+{% endblock %}
