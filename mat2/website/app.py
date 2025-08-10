@@ -22,9 +22,6 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 import subprocess
 
-# other stuff 
-from scapy.all import ARP, Ether, srp
-
 # app setup
 app = Flask(__name__)
 app.secret_key = '123'
@@ -37,7 +34,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 # route blueprints
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(prof_bp, url_prefix='/profile')
-# app.register_blueprint(admin_bp, url_prefix='/admin')
+
 
 app.register_blueprint(home_bp)
 app.register_blueprint(exiftool)
