@@ -10,16 +10,16 @@
         <h3 style="text-align:center;">Add Metadata to Your Images</h3>
         <form method="post" enctype="multipart/form-data" action="{{ url_for('exif.mdstrip') }}">
             <div class="custom-file-upload">
-                <input type="file" name="file" id="exif_file" required>
+                <input type="file" name="file" id="exif_file">
                 <label for="exif_file" id="exif_file-label">
                     <span id="exif_file-label-text">&#128206; Choose Image</span>
                 </label>
-                <span id="exif_file-chosen"></span>
+                <span id="exif_file-chosen" class="file-chosen"></span>
             </div>
             <label for="exif_option" class="meta-label">Select to add Metadata</label>
             <div class="custom-select-wrapper">
                 <span class="select-icon">&#128394;</span>
-                <select name="exif_option" id="exif_option" class="custom-select" required onchange="updateInputField()">
+                <select name="exif_option" id="exif_option" class="custom-select" onchange="updateInputField()">
                     <option value="">Choose an option...</option>
                     <option value="view">View Metadata</option>
                     <option value="comment">Add Comment</option>
@@ -30,16 +30,23 @@
                 </select>
             </div>
             <div id="input_container">
-                <input type="hidden" name="exif_value" id="exif_value" placeholder="Enter value" class="form-control mb-3" required>
+                <input type="hidden" name="exif_value" id="exif_value" placeholder="Enter value" class="form-control mb-3">
             </div>
             <div class="button-group">
                 <button type="submit" class="btn meta-btn">Upload & Add Metadata</button>
             </div>
         </form>
+
+        {% if error %}
+          <div class="metadata-result unique-meta-result">
+            <pre>{{ error }}</pre>
+          </div>
+        {% endif %}
+
         {% if exif_result %}
-            <div class="metadata-result unique-meta-result">
-                <pre>{{ exif_result }}</pre>
-            </div>
+          <div class="metadata-result unique-meta-result">
+            <pre>{{ exif_result }}</pre>
+          </div>
         {% endif %}
             
             {% if metadata_output and request.form.get ('exif_option') in ['view', 'gps_location', 'model'] %}
@@ -49,6 +56,7 @@
                 <button type="submit" name="save" value="1" class="btn meta-btn">Save Metadata</button>
             </form>
         {% endif %}
+        <div id="result"></div>
     </div>
 </div>
 <script>
@@ -81,8 +89,37 @@ function updateInputField() {
             break;
     }
     document.getElementById('input_container').innerHTML = showInput
-        ? '<input type="text" name="exif_value" id="exif_value" placeholder="' + placeholder + '" class="form-control mb-3" required>'
+        ? '<input type="text" name="exif_value" id="exif_value" placeholder="' + placeholder + '" class="form-control mb-3">'
         : '';
 }
+
+
+
+document.querySelector('form').addEventListener('submit', function(e){
+    const file = document.getElementById('exif_file').files[0];
+    const exifOption = document.getElementById('exif_option').value;
+    // If the input field is visible, check its value
+    const exifValueInput = document.getElementById('exif_value');
+    let exifValue = exifValueInput ? exifValueInput.value : null;
+
+    let error = "";
+    if (!file) {
+        error = "Please select an image file.";
+    } else if (!exifOption) {
+        error = "Please select a metadata option.";
+    } else if (exifValueInput && exifValueInput.type === "text" && !exifValue) {
+        error = "Please enter a value for the selected option.";
+    }
+
+    if (error) {
+        e.preventDefault(); 
+        document.getElementById('result').innerHTML =
+            "<div class='metadata-result unique-meta-result'><pre>" + error + "</pre></div>";
+    } else {
+        document.getElementById('result').innerHTML = "";
+    }
+});
+
+
 </script>
 {% endblock %}
