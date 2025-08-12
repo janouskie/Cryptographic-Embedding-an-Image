@@ -3,6 +3,7 @@
 {% block title %}EXIF Data Editor{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href = "style.css">
 <div class="centered-form">
     <div class="form-card unique-meta-card">
         <div class="meta-icon">&#128247;</div>
@@ -10,16 +11,17 @@
         <h3 style="text-align:center;">Add Metadata to Your Images</h3>
         <form method="post" enctype="multipart/form-data" action="{{ url_for('exif.mdstrip') }}">
             <div class="custom-file-upload">
-                <input type="file" name="file" id="exif_file">
+                <input type="file" name="file" id="exif_file" required>
                 <label for="exif_file" id="exif_file-label">
                     <span id="exif_file-label-text">&#128206; Choose Image</span>
                 </label>
-                <span id="exif_file-chosen" class="file-chosen"></span>
+                <span id="exif_file-chosen"></span>
             </div>
+
             <label for="exif_option" class="meta-label">Select to add Metadata</label>
             <div class="custom-select-wrapper">
                 <span class="select-icon">&#128394;</span>
-                <select name="exif_option" id="exif_option" class="custom-select" onchange="updateInputField()">
+                <select name="exif_option" id="exif_option" class="custom-select" required onchange="updateInputField()">
                     <option value="">Choose an option...</option>
                     <option value="view">View Metadata</option>
                     <option value="comment">Add Comment</option>
@@ -29,97 +31,150 @@
                     <option value="model">Modify Phone Model</option>
                 </select>
             </div>
+
+            <div id="model_dropdown" style="display: none;">
+                <div class="custom-select-wrapper">
+                    <span class="select-icon">&#128394;</span>
+                    <label for="model_options" class="meta-label">Select phone model:</label>
+                    <select name="phone_model" id="model_options" class="custom-select" onchange="phoneModelChange()">
+                        <option value="iphone_15_pro">iPhone 15 Pro</option>
+                        <option value="iphone_15">iPhone 15</option>
+                        <option value="iphone_14_pro">iPhone 14 Pro</option>
+                        <option value="iphone_14">iPhone 14</option>
+                        <option value="iphone_13_pro">iPhone 13 Pro</option>
+                        <option value="iphone_13">iPhone 13</option>
+                        <option value="iphone_12_pro">iPhone 12 Pro</option>
+                        <option value="samsung_s24_ultra">Samsung S24 Ultra</option>
+                        <option value="samsung_s24">Samsung S24</option>
+                        <option value="samsung_s23_ultra">Samsung S23 Ultra</option>
+                        <option value="samsung_s23">Samsung S23</option>
+                        <option value="samsung_z_flip">Samsung Z Flip</option>
+                        <option value="samsung_s22_ultra">Samsung S22 Ultra</option>
+                        <option value="samsung_s22">Samsung S22</option>
+                    </select>
+                </div>
+            </div>
+
             <div id="input_container">
                 <input type="hidden" name="exif_value" id="exif_value" placeholder="Enter value" class="form-control mb-3">
             </div>
+            
             <div class="button-group">
                 <button type="submit" class="btn meta-btn">Upload & Add Metadata</button>
             </div>
         </form>
-
-        {% if error %}
-          <div class="metadata-result unique-meta-result">
-            <pre>{{ error }}</pre>
-          </div>
-        {% endif %}
-
+        
         {% if exif_result %}
-          <div class="metadata-result unique-meta-result">
-            <pre>{{ exif_result }}</pre>
-          </div>
+            <div class="metadata-result unique-meta-result">
+                <pre>{{ exif_result }}</pre>
+            </div>
         {% endif %}
             
-            {% if metadata_output and request.form.get ('exif_option') in ['view', 'gps_location', 'model'] %}
+        {% if metadata_output and request.form.get('exif_option') in ['view', 'gps_location', 'model'] %}
             <form method="post" action="{{ url_for('exif.mdstrip') }}">
                 <textarea id="metadata" name="metadata" rows="15" cols="80" class="json-metadata-box">{{ metadata_output }}</textarea>
                 <input type="hidden" name="original_file" value="{{ original_file }}">
                 <button type="submit" name="save" value="1" class="btn meta-btn">Save Metadata</button>
             </form>
         {% endif %}
-        <div id="result"></div>
     </div>
 </div>
+
 <script>
+// File upload handler
 document.getElementById('exif_file').addEventListener('change', function(){
     const fileName = this.files[0] ? this.files[0].name : '';
     document.getElementById('exif_file-chosen').textContent = fileName;
 });
-function updateInputField() {
-    const select = document.getElementById('exif_option');
-    let placeholder = 'Enter value';
-    let showInput = true;
-    switch(select.value) {
-        case 'view':
-            showInput = false;
-            break;
-        case 'comment':
-            placeholder = 'Enter comment';
-            break;
-        case 'creation_time':
-            placeholder = 'YYYY:MM:DD HH:MM:SS';
-            break;
-        case 'gps_location':
-            showInput = false;
-            break;
-        case 'model':
-            showInput = false;
-            break;
-        case 'artist':
-            placeholder = 'Enter author name';
-            break;
+
+// to keep model names organised and neat 
+const modelNames = {
+    iphone_15_pro: "Apple iPhone 15 Pro",
+    iphone_15: "Apple iPhone 15",
+    iphone_14_pro: "Apple iPhone 14 Pro",
+    iphone_14: "Apple iPhone 14",
+    iphone_13_pro: "Apple iPhone 13 Pro",
+    iphone_13: "Apple iPhone 13",
+    iphone_12_pro: "Apple iPhone 12 Pro",
+    samsung_s24_ultra: "Samsung Galaxy S24 Ultra",
+    samsung_s24: "Samsung Galaxy S24",
+    samsung_s23_ultra: "Samsung Galaxy S23 Ultra",
+    samsung_s23: "Samsung Galaxy S23",
+    samsung_z_flip: "Samsung Galaxy Z Flip",
+    samsung_s22_ultra: "Samsung Galaxy S22 Ultra",
+    samsung_s22: "Samsung Galaxy S22"
+};
+
+// handles phone model selection change
+function phoneModelChange() {
+    const selectedModel = document.getElementById("model_options").value;
+    const metadataTextarea = document.getElementById("metadata");
+    const inputField = document.getElementById("exif_value");
+
+    if (inputField) {
+        inputField.value = modelNames[selectedModel];
     }
-    document.getElementById('input_container').innerHTML = showInput
-        ? '<input type="text" name="exif_value" id="exif_value" placeholder="' + placeholder + '" class="form-control mb-3">'
-        : '';
+
+    if (metadataTextarea && metadataTextarea.value) {
+        // turns the JSON file into a JS to edit 
+        const metadata = JSON.parse(metadataTextarea.value);
+        // changes the model field from metadata to the selected option
+        metadata[0].Model = modelNames[selectedModel];
+
+        if (selectedModel.startsWith('iphone')) {
+            metadata[0].Make = "Apple";
+        } 
+        else {
+            metadata[0].Make = "Samsung";
+        }
+        // changes the JS file back to a JSON file 
+        metadataTextarea.value = JSON.stringify(metadata,null,2) 
+    }
 }
 
+// handling the dropdown options
+function updateInputField() {
+    const select = document.getElementById('exif_option');
+    const modelDropdown = document.getElementById("model_dropdown");
+    const inputContainer = document.getElementById('input_container');
+    const selectedOption = select.value;
 
-
-document.querySelector('form').addEventListener('submit', function(e){
-    const file = document.getElementById('exif_file').files[0];
-    const exifOption = document.getElementById('exif_option').value;
-    // If the input field is visible, check its value
-    const exifValueInput = document.getElementById('exif_value');
-    let exifValue = exifValueInput ? exifValueInput.value : null;
-
-    let error = "";
-    if (!file) {
-        error = "Please select an image file.";
-    } else if (!exifOption) {
-        error = "Please select a metadata option.";
-    } else if (exifValueInput && exifValueInput.type === "text" && !exifValue) {
-        error = "Please enter a value for the selected option.";
-    }
-
-    if (error) {
-        e.preventDefault(); 
-        document.getElementById('result').innerHTML =
-            "<div class='metadata-result unique-meta-result'><pre>" + error + "</pre></div>";
+    if (selectedOption === 'model') {
+        modelDropdown.style.display = 'block';
+        // hides the inout box
+        inputContainer.innerHTML = '<input type="hidden" name="exif_value" id="exif_value">';
+        phoneModelChange();
+        
     } else {
-        document.getElementById('result').innerHTML = "";
+        // Hide model dropdown for other options
+        modelDropdown.style.display = "none";
+        
+        // Handle other input types
+        let placeholder = 'Enter value';
+        let showInput = true;
+        
+        switch(select.value) {
+            case 'view':
+            case 'gps_location':
+                showInput = false;
+                break;
+            case 'comment':
+                placeholder = 'Enter comment';
+                break;
+            case 'creation_time':
+                placeholder = 'YYYY:MM:DD HH:MM:SS';
+                break;
+            case 'artist':
+                placeholder = 'Enter author name';
+                break;
+        }
+        
+        if (showInput) {
+            inputContainer.innerHTML = '<input type="text" name="exif_value" id="exif_value" placeholder="' + placeholder + '" class="form-control mb-3" required>';
+        } else {
+            inputContainer.innerHTML = '<input type="hidden" name="exif_value" id="exif_value">';
+        }
     }
-});
-
-
+}
 </script>
 {% endblock %}

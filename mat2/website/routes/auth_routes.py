@@ -1,9 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, send_file
 from models import db, User
-from mat2.mat2 import clean_meta
+# from mat2.mat2 import clean_meta
+import mat2
 import re
 from PIL import Image
 import io
+
 
 auth_bp = Blueprint('auth', __name__)
 

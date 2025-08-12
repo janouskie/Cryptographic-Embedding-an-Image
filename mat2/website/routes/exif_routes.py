@@ -35,8 +35,8 @@ def mdstrip():
     up = request.files.get('file')
     opt =request.form.get('exif_option')
     val= request.form.get('exif_value', '')
-
-
+    phone_model = request.form.get('phone_model')
+    model2 = request.form.get('selectedModel')
 
     # if user has selected an option of their choice
 
@@ -49,8 +49,6 @@ def mdstrip():
     os.makedirs(upload, exist_ok=True)
     path = os.path.join(upload, fname)
     up.save(path)
-
-
 
     # if the file you uploaded has .jpg
 
@@ -71,7 +69,7 @@ def mdstrip():
           grabbing_metadata = json.loads(output)
           model_info = {}
           for data_tag, value in grabbing_metadata[0].items():
-            if data_tag.lower() in ['model','make', 'device manufacturer']:
+            if data_tag.lower() in ['model','make', 'Device manufacturer']:
               model_info[data_tag] = value
               
           if model_info: 
@@ -110,7 +108,7 @@ def mdstrip():
     if opt == 'comment':
       cmd.append(f'-Comment={val}')
     elif opt == 'model':
-      cmd.append(f'-Model={val}')
+      cmd.extend(['-Make=Apple', f'-Model={val}'])
     elif opt == 'gps_location': # In GPSPosition only edit for e.x "N, 122 deg 25' 7.84\" W"}" to see change
       cmd.append(f'-GPS={val}') # In GPSAltitude only edit the meters value to see change
     elif opt == 'artist':

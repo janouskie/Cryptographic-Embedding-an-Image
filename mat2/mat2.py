@@ -11,8 +11,9 @@ import concurrent.futures
 from PIL.ExifTags import GPSTAGS, TAGS
 import numpy
 import pprint
-from libmat2 import parser_factory
-from libmat2 import check_dependencies, UnknownMemberPolicy
+# from libmat2 import parser_factory
+# from libmat2 import check_dependencies, UnknownMemberPolicy
+from libmat2 import *
 
 try:
     print("")
