@@ -5,18 +5,23 @@
 {% block content %}
 <div class="centered-card-container">
     <div class="modern-card-grid">
+
+
+
+        <!-- Embed Section -->
         <div class="modern-card unique-meta-card">
             <div class="meta-icon">🖼️</div>
-            <h2 class="gradient-text">LSB Steganography</h2>
+            <h2 class="gradient-text">Encrypt Hidden Metadata</h2>
             <p>
                 Hide selected metadata inside your image using Least Significant Bit (LSB) embedding.<br>
                 <span style="font-size:0.98em;color:#888;">(PNG and JPG supported)</span>
             </p>
-            <form method="POST" enctype="multipart/form-data" style="width:100%;">
+            <form method="POST" enctype="multipart/form-data" style="width:100%;" action="{{ url_for('stego.stego') }}">
+                <input type="hidden" name="action" value="embed">
                 <div class="custom-file-upload">
-                    <input type="file" id="file" name="file" accept=".png,.jpg,.jpeg">
-                    <label for="file">📎 Choose Image</label>
-                    <span id="file-chosen" class="file-chosen"></span>
+                    <input type="file" id="embed-file" name="file" accept=".png,.jpg,.jpeg">
+                    <label for="embed-file">📎 Choose Image</label>
+                    <span id="embed-file-chosen" class="file-chosen"></span>
                 </div>
                 <div class="meta-label">Select metadata to embed:</div>
                 <div class="meta-checkbox-group">
@@ -42,21 +47,58 @@
                     </label>
                 </div>
                 <button class="btn meta-btn" type="submit" style="width:100%;">Embed Selected Metadata via LSB</button>
-                <div id="result"></div>
-                {% if error %}
+                <div id="embed-result"></div>
+                {% if action == 'embed' and error %}
                   <div class="metadata-result unique-meta-result">
                     <pre>{{ error }}</pre>
                   </div>
                 {% endif %}
-                {% if result %}
+                {% if action == 'embed' and result %}
                   <div class="metadata-result unique-meta-result">
                     <pre>{{ result }}</pre>
+                    {% if download_link %}
+                      <a href="{{ download_link }}" class="btn meta-btn" style="margin-top:10px;">Download Embedded Image</a>
+                    {% endif %}
+                  </div>
+                {% endif %}
+            </form>
+        </div>
+
+
+
+        <!-- Extract Section -->
+        <div class="modern-card unique-meta-card">
+            <div class="meta-icon">🔍</div>
+            <h2 class="gradient-text">Decrypt Hidden Metadata</h2>
+            <p>
+                Extract hidden metadata from an LSB-embedded image.<br>
+                <span style="font-size:0.98em;color:#888;">(PNG files recommended)</span>
+            </p>
+            <form method="POST" enctype="multipart/form-data" style="width:100%;" action="{{ url_for('stego.stego') }}">
+                <input type="hidden" name="action" value="extract">
+                <div class="custom-file-upload">
+                    <input type="file" id="extract-file" name="file" accept=".png,.jpg,.jpeg">
+                    <label for="extract-file">📎 Choose LSB Image</label>
+                    <span id="extract-file-chosen" class="file-chosen"></span>
+                </div>
+                <button class="btn meta-btn" type="submit" style="width:100%;">Extract Hidden Metadata</button>
+                <div id="extract-result"></div>
+                {% if action == 'extract' and error %}
+                  <div class="metadata-result unique-meta-result">
+                    <pre>{{ error }}</pre>
+                  </div>
+                {% endif %}
+                {% if action == 'extract' and extracted_data %}
+                  <div class="metadata-result unique-meta-result">
+                    <h4>Extracted Hidden Metadata:</h4>
+                    <pre>{{ extracted_data }}</pre>
                   </div>
                 {% endif %}
             </form>
         </div>
     </div>
 </div>
+
 <script>
   // Show chosen file name for the image input
   document.getElementById('file').addEventListener('change', function(){

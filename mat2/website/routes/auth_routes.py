@@ -72,7 +72,7 @@ def login():
     return redirect(url_for('admin.admin_page'))
    else:
     pic = "/Users/Administrator2/Downloads/Cryptographic-Embedding-an-Image-main 2/second_photos/p2.jpg"
-    clean_meta(pic)
+ #   clean_meta(pic)
     flash("✨ metadata been wiped", "metadata")
     return redirect(url_for('home.home'))
   else:
