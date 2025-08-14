@@ -69,7 +69,7 @@ def login():
    session['username']=dude.username
    session.pop('_flashes',None)
    if dude.role == 'Admin':
-    return redirect(url_for('admin.admin_page'))
+    return redirect(url_for('home.home'))
    else:
     pic = "/Users/Administrator2/Downloads/Cryptographic-Embedding-an-Image-main 2/second_photos/p2.jpg"
  #   clean_meta(pic)
