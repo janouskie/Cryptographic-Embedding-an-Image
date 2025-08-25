@@ -1,0 +1,3 @@
+Author: janjans
+CreationTime: 2025:06:17 13:30:46
+DeviceType: Apple iPhone 12
