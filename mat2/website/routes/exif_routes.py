@@ -28,20 +28,18 @@ def mdstrip():
 
       with open(temp, 'w') as f:
         f.write(metadata)
-
+      
+      #runs the Exiftool  
       subprocess.run(['exiftool', f'-json={temp}', '-overwrite_original', path])
       return send_file(path, as_attachment=True)
 
+    #grabbing values from user 
     up = request.files.get('file')
     opt =request.form.get('exif_option')
     val= request.form.get('exif_value', '')
-    phone_model = request.form.get('phone_model')
-    model2 = request.form.get('selectedModel')
-
-    # if user has selected an option of their choice
-
+    
+    # if the user does not pick an option: 
     if not up or not opt:
-      
       return render_template('mdstrip.html')
 
     fname = up.filename
@@ -58,7 +56,9 @@ def mdstrip():
       try: # get the metadata
 
         result = subprocess.run(['exiftool', '-j', path], capture_output=True, text=True, check=True)
+        # running the Exiftool
         output = result.stdout
+        # print it out on the textbox 
       except subprocess.CalledProcessError: # case of failure
         output = ""
         
@@ -68,6 +68,7 @@ def mdstrip():
         try:
           grabbing_metadata = json.loads(output)
           model_info = {}
+          # finding the tags to print out for phone model
           for data_tag, value in grabbing_metadata[0].items():
             if data_tag.lower() in ['model','make', 'Device manufacturer']:
               model_info[data_tag] = value
@@ -80,16 +81,17 @@ def mdstrip():
           output = "Something went wrong, try again?"
           
       elif opt == 'gps_location':
-        
         #looping through the metadata
         try:
           grabbing_metadata = json.loads(output)
           gps_info = {}
+          #finding the tags for geolocation
           for data_tag, value in grabbing_metadata[0].items():
             if 'GPS' in data_tag:
               gps_info[data_tag] = value
 
           if gps_info: 
+            #prints out the geolocation info if it exists
             output = json.dumps(gps_info)
           else:
             output = "No GPS information found"
@@ -98,7 +100,6 @@ def mdstrip():
           
       
       # Only pass metadata_output when viewing
-
       return render_template('mdstrip.html', metadata_output=output, original_file=fname)
 
     # For all other options, don't pass metadata_output
